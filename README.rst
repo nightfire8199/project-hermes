@@ -3,10 +3,10 @@ project-hermes
 
 A multi-sourced music management system written in python
 
-Installation instructions
+Installation Instructions
 -------------------------
 
-Install Dependancies::
+Install Dependencies::
 
 	$ pip install soundcloud
 	$ pip install gmusicapi
@@ -21,12 +21,13 @@ To run the program::
 	$ python LibraryBuild.py
 
 
-The program wil ask for your various credentials before compiling a library
+The program will ask for your various credentials before compiling a library
 
 Once the user input console is available type a single ascii character to return all songs whose track name starts with that character
 
 TODO:
 
+* Build client interface
 * Store authentication credentials locally
 * Store library track metadata locally 
 * Auto-login if credentials stored
