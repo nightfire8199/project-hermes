@@ -1,12 +1,34 @@
-project_hermes
+project-hermes
 ==============
 
 A multi-sourced music management system written in python
 
-Installation instructions::
+Installation instructions
+-------------------------
 
-$ pip install soundcloud
-$ pip install gmusicapi
-$ pip install pyopenssl ndg-httpsclient pyasn1
+Install Dependancies::
+
+	$ pip install soundcloud
+	$ pip install gmusicapi
+	$ pip install pyopenssl ndg-httpsclient pyasn1
+
+
+Get a Soundcloud Client ID:
+
+Go to http://soundcloud.com/you/apps and register a new app to get a client ID
+
+To run the program::
+	$ python LibraryBuild.py
+
+
+The program wil ask for your various credentials before compiling a library
+
+Once the user input console is available type a single ascii character to return all songs whose track name starts with that character
 
 TODO:
+
+* Store authentication credentials locally
+* Store library track metadata locally 
+* Auto-login if credentials stored
+* Auto populate if library stored
+* Convert master library from a list to a dict
