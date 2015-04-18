@@ -7,6 +7,8 @@ import urllib3.contrib.pyopenssl
 
 import webbrowser
 
+from collections import defaultdict
+
 urllib3.contrib.pyopenssl.inject_into_urllib3()
 
 ### Create Google Play client
@@ -73,23 +75,31 @@ for track in S_list:
 	new_track.location = 'S'
 	S_lib.append(new_track)
 
-
+	
 print ""
 
 Master_lib = S_lib + G_lib
+
+Search_lib = defaultdict(set)
 
 ### Sort Master Library
 
 Master_lib.sort(key=lambda x: x.title.upper())
 
-### Allow User Search
+## Build Database
 
-print "Type a character to return all songs whose title begins with that character\n"
+for track in Master_lib:
+	for word in track.title.split():	
+		Search_lib[word.upper()].add(track)
+	for word in track.artist.split():
+		Search_lib[word.upper()].add(track)
+	for word in track.album.split():
+		Search_lib[word.upper()].add(track)
+
+### Allow User Search
 
 while(True):
 	USI = raw_input("$> ")
-	for track in Master_lib:
-		if track.title[0].upper() == USI.upper():
-			print track.artist, " - ", track.album, " - ", track.title
-
 	
+	for track in Search_lib[USI.upper()]:
+		print track.artist, " - ", track.album, " - ", track.title
