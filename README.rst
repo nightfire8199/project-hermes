@@ -24,8 +24,6 @@ To run the program::
 
 The program will ask for your various credentials before compiling a library
 
-Once the user input console is available type a single ascii character to return all songs whose track name starts with that character
-
 TODO:
 
 * Build client interface
@@ -33,4 +31,4 @@ TODO:
 * Store library track metadata locally 
 * Auto-login if credentials stored
 * Auto populate if library stored
-* Convert master library from a list to a dict
+DONE * Convert master library from a list to a dict
