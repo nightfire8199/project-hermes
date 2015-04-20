@@ -69,19 +69,6 @@ print ""
 #     # row[0] returns the first column in the query (name).
 #     print row[0].encode("utf-8"), row[1].encode("utf-8"), row[2].encode("utf-8")
 
-
-Search_lib = defaultdict(set)
-
-## Build Database
-
-# for track in user.library:
-# 	for word in track.title.split():	
-# 		Search_lib[word.upper()].add(track)
-# 	for word in track.artist.split():
-# 		Search_lib[word.upper()].add(track)
-# 	for word in track.album.split():
-# 		Search_lib[word.upper()].add(track)
-
 ### Allow User Search
 
 player = Player()
@@ -117,24 +104,51 @@ while(True):
 	elif USI[:4] == 'sync':
 		sync(cursor)
 	else:
+		Art_res = set()
+		Alb_res = set()
+		Tra_res = set()
+		for word in USI.split():
+			cursor.execute("SELECT DISTINCT(artist) FROM tracks WHERE artist LIKE ? OR artist LIKE ? ORDER BY artist", (word+'%', '% '+word+'%',))
+			all_rows = cursor.fetchall()
+			if(len(Art_res) == 0):
+				for row in all_rows:
+			    		 Art_res.add(row[0].encode("utf-8"))
+			else:
+				temp = set()
+				for row in all_rows:
+			    		 temp.add(row[0].encode("utf-8"))
+				Art_res = Art_res.intersection(temp)
+
+			
+			cursor.execute("SELECT DISTINCT(album) FROM tracks WHERE album LIKE ? OR album LIKE ? ORDER BY album", (word+'%', '% '+word+'%',))
+			all_rows = cursor.fetchall()
+			if(len(Alb_res) == 0):
+				for row in all_rows:
+			    		 Alb_res.add(row[0].encode("utf-8"))
+			else:
+				temp = set()
+				for row in all_rows:
+			    		 temp.add(row[0].encode("utf-8"))
+				Alb_res = Alb_res.intersection(temp)
+
+			
+			cursor.execute("SELECT DISTINCT(id), artist, album, title FROM tracks WHERE title LIKE ? OR title LIKE ? ORDER BY artist, album", (word+'%', '% '+word+'%',))
+			all_rows = cursor.fetchall()
+			if(len(Tra_res) == 0):
+				for row in all_rows:
+			    		 Tra_res.add(row)
+			else:
+				temp = set()
+				for row in all_rows:
+			    		 temp.add(row)
+				Tra_res = Tra_res.intersection(temp)
 
 		print "\n...ARTISTS..............."
-		cursor.execute("SELECT DISTINCT(artist) FROM tracks WHERE artist LIKE ? OR artist LIKE ? ORDER BY artist", (USI+'%', '% '+USI+'%',))
-		all_rows = cursor.fetchall()
-		for row in all_rows:
-		    # row[0] returns the first column in the query (name).
-		    print row[0].encode("utf-8")
-
+		for artist in Art_res:
+			print artist
 		print "\n...ALBUMS..............."
-		cursor.execute("SELECT DISTINCT(album) FROM tracks WHERE album LIKE ? OR album LIKE ? ORDER BY album", (USI+'%', '% '+USI+'%',))
-		all_rows = cursor.fetchall()
-		for row in all_rows:
-		    # row[0] returns the first column in the query (name).
-		    print row[0].encode("utf-8")
-
+		for album in Alb_res:
+			print album
 		print "\n...TRACKS..............."
-		cursor.execute("SELECT DISTINCT(id), artist, album, title FROM tracks WHERE title LIKE ? OR title LIKE ? ORDER BY artist, album", (USI+'%', '% '+USI+'%',))
-		all_rows = cursor.fetchall()
-		for row in all_rows:
-		    # row[0] returns the first column in the query (name).
-		    print row[0], '\t', row[1].encode("utf-8"), ' - ', row[3].encode("utf-8"), ' - ', row[2].encode("utf-8")
+		for [ident,artist,album,track] in Tra_res:
+			print ident, '\t', artist.encode("utf-8"), ' - ', album.encode("utf-8"), ' - ', track.encode("utf-8")
