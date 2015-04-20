@@ -32,7 +32,8 @@ class User:
 	def get_filename(self, arg=None):
 		if arg is None:
 			arg = raw_input('Choose a user profile filename: ')
-		return path.join('../', arg)
+		self.profile_name = arg
+		return path.join('..', arg)
 
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')
