@@ -5,13 +5,13 @@ from Player import *
 from os import path
 import os
 import sqlite3
-
-
 from collections import defaultdict
 
 def sync(cursor):
+	### Generate Google Play Songs
 	G_list = client.G_client.get_all_songs()
 
+	### Generate Soundcloud Songs
 	Fav_Size = 0
 	S_list = client.S_client.get('/me/favorites', limit=300)
 	while Fav_Size != len(S_list):
@@ -24,34 +24,14 @@ def sync(cursor):
 	''')
 
 	for track in G_list:
-		new_track = G_Track(track['id'])
-		new_track.id = len(user.library)
-		if len(track['title']) > 0:
-			new_track.title = track['title']
-		if len(track['album']) > 0:
-			new_track.album = track['album']
-		if len(track['artist']) > 0:
-			new_track.artist = track['artist']
-		new_track.location = 'G'
-		user.library.append(new_track)
-
 		cursor.execute('''
 			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-			''', (new_track.id, new_track.title, new_track.album, new_track.artist, new_track.location, track['id']))
+			''', (len(user.library), track['title'], track['album'], track['artist'], 'G', track['id']))
 
 	for track in S_list:
-		new_track = S_Track(track.id)
-		new_track.id = len(user.library)
-		new_track.title = track.title
-		new_track.artist = track.user['username']
-		new_track.location = 'S'
-		user.library.append(new_track)
-
 		cursor.execute('''
 			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-			''', (new_track.id, new_track.title, new_track.album, new_track.artist, new_track.location, track.id))
-		
-	print ""
+			''', (len(user.library), track.title, "Unknown Album", track.user['username'], 'S', track.id))
 
 	db.commit()
 
@@ -88,20 +68,6 @@ print ""
 #     # row[0] returns the first column in the query (name).
 #     print row[0].encode("utf-8"), row[1].encode("utf-8"), row[2].encode("utf-8")
 
-
-Search_lib = defaultdict(set)
-
-## Build Database
-
-# for track in user.library:
-# 	for word in track.title.split():	
-# 		Search_lib[word.upper()].add(track)
-# 	for word in track.artist.split():
-# 		Search_lib[word.upper()].add(track)
-# 	for word in track.album.split():
-# 		Search_lib[word.upper()].add(track)
-
-### Allow User Search
 
 player = Player()
 player.client = client
