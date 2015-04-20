@@ -1,5 +1,3 @@
-from Library import *
-
 import soundcloud
 from gmusicapi import Mobileclient
 from gmusicapi import Webclient
