@@ -1,6 +1,7 @@
 from gmusicapi import Webclient
 import vlc
 import sys
+from os import path
 
 class User:
 	
@@ -15,20 +16,23 @@ class User:
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
 		if(len(sys.argv) >= 2):
 			try:
-				File = open(str(sys.argv[1]))
+				File = open(self.get_filename(str(sys.argv[1])))
 			except IOError:
 				print 'Cannot find user: ' + str(sys.argv[1])
 				print 'Creating new user...'
-				filename = raw_input('Choose a user profile filename: ')
-				self.authenticate(filename)
+				# filename = raw_input('Choose a user profile filename: ')
+				self.authenticate(self.get_filename())
 			else:
-				self.login(str(sys.argv[1]))
+				self.login(self.get_filename(str(sys.argv[1])))
 
 		else:
-			filename = raw_input('Choose a user profile filename: ')
-			self.authenticate(filename)
+			# filename = path.join('../', raw_input('Choose a user profile filename: '))
+			self.authenticate(self.get_filename())
 
-
+	def get_filename(self, arg=None):
+		if arg is None:
+			arg = raw_input('Choose a user profile filename: ')
+		return path.join('../', arg)
 
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')
