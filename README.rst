@@ -49,6 +49,13 @@ Type::
 To control the current track
 
 Type::
+	$> add [song-id]
+	$> start
+	$> print
+
+To control the queue
+
+Type::
 
 	$> quit
 

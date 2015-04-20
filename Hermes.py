@@ -54,6 +54,7 @@ for track in user.library:
 ### Allow User Search
 
 player = Player()
+player.client = client
 
 while(True):
 	USI = raw_input("$> ")
@@ -61,10 +62,20 @@ while(True):
 		player.play_track(client.get_stream_URL(user.library[int(USI[5:])]))
 	elif USI[:4] == 'stop':
 		player.stop()
+	elif USI[:3] == 'add':
+		player.add(user.library[int(USI[4:])])
+	elif USI[:5] == 'print':
+		player.print_queue()
 	elif USI[:5] == 'pause':
 		player.pause()
 	elif USI[:4] == 'play':
 		player.play()
+	elif USI[:4] == 'next':
+		player.play_next()
+	elif USI[:4] == 'prev':
+		player.play_prev()
+	elif USI[:5] == 'start':
+		player.play_queue()
 	elif USI[:4] == 'quit':
 		break
 	else:
