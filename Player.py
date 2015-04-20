@@ -21,7 +21,7 @@ class Player:
 
 	def play_next(self):
 		if self.pos < len(self.Queue):
-			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos+1]))
+			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos+1][0],self.Queue[self.pos+1][1]))
 			self.vlc.play()
 			self.pos+=1
 		else:
@@ -29,23 +29,25 @@ class Player:
 
 	def play_prev(self):
 		if self.pos > 0:
-			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos-1]))
+			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos-1][0],self.Queue[self.pos-1][1]))
 			self.vlc.play()
 			self.pos-=1
 		else:
 			print "No previous track exists"
 
-	def add(self,track):
-		self.Queue.append(track)
+	def add(self,sid,location,ident):
+		self.Queue.append([sid,location,ident])
 
-	def print_queue(self):
+	def print_queue(self, cursor):
 		for track in self.Queue:
 			if track is self.Queue[self.pos]:
 				print ">> ",
-			print track.artist, " - ", track.title
+			cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track[2],))
+			result = cursor.fetchone()
+			print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
 
 	def play_queue(self):
-		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos]))
+		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos][0],self.Queue[self.pos][1]))
 		self.vlc.play()
 
 	def play(self):
