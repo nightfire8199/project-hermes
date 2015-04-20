@@ -86,6 +86,10 @@ while(True):
 	elif USI[:4] == 'quit':
 		break
 	else:
-		newList = sorted(Search_lib[USI.upper()], key=lambda x: (x.artist, x.album))
+		terms = USI.split()
+		results = Search_lib[terms[0].upper()]
+		for word in terms:
+			results = results.intersection(Search_lib[word.upper()])
+		newList = sorted(results, key=lambda x: (x.artist, x.album))
 		for track in newList:
 			print track.id, "\t# " ,track.artist.encode("utf-8"), " - ", track.album.encode("utf-8"), " - ", track.title.encode("utf-8")
