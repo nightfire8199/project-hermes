@@ -23,9 +23,12 @@ G_list = client.G_client.get_all_songs()
 for track in G_list:
 	new_track = G_Track(track['id'])
 	new_track.id = len(user.library)
-	new_track.title = track['title']
-	new_track.album = track['album']
-	new_track.artist = track['artist']
+	if len(track['title']) > 0:
+		new_track.title = track['title']
+	if len(track['album']) > 0:
+		new_track.album = track['album']
+	if len(track['artist']) > 0:
+		new_track.artist = track['artist']
 	new_track.location = 'G'
 	user.library.append(new_track)
 
@@ -79,5 +82,6 @@ while(True):
 	elif USI[:4] == 'quit':
 		break
 	else:
-		for track in Search_lib[USI.upper()]:
-			print track.id, " # " ,track.artist, " - ", track.album, " - ", track.title
+		newList = sorted(Search_lib[USI.upper()], key=lambda x: x.album)
+		for track in newList:
+			print track.id, "\t# " ,track.artist.encode("utf-8"), " - ", track.album.encode("utf-8"), " - ", track.title.encode("utf-8")
