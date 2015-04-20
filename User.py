@@ -1,6 +1,7 @@
 from gmusicapi import Webclient
 import vlc
 import sys
+import os
 from os import path
 
 class User:
@@ -33,7 +34,11 @@ class User:
 		if arg is None:
 			arg = raw_input('Choose a user profile filename: ')
 		self.profile_name = arg
-		return path.join('..', arg)
+		data_dir = path.join('..', 'hermes-userdata')
+		if not path.exists(data_dir):
+			os.mkdir(data_dir)
+
+		return path.join(data_dir, arg)
 
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')

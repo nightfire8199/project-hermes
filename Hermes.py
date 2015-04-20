@@ -2,8 +2,58 @@ from User import *
 from Library import *
 from ClientHandler import *
 from Player import *
+from os import path
+import os
+import sqlite3
+
 
 from collections import defaultdict
+
+def sync(cursor):
+	G_list = client.G_client.get_all_songs()
+
+	Fav_Size = 0
+	S_list = client.S_client.get('/me/favorites', limit=300)
+	while Fav_Size != len(S_list):
+		Fav_Size = len(S_list)
+		S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
+
+	# cursor.execute('''DROP TABLE tracks''')
+	cursor.execute('''
+	    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT)
+	''')
+
+	for track in G_list:
+		new_track = G_Track(track['id'])
+		new_track.id = len(user.library)
+		if len(track['title']) > 0:
+			new_track.title = track['title']
+		if len(track['album']) > 0:
+			new_track.album = track['album']
+		if len(track['artist']) > 0:
+			new_track.artist = track['artist']
+		new_track.location = 'G'
+		user.library.append(new_track)
+
+		cursor.execute('''
+			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
+			''', (new_track.id, new_track.title, new_track.album, new_track.artist, new_track.location, track['id']))
+
+	for track in S_list:
+		new_track = S_Track(track.id)
+		new_track.id = len(user.library)
+		new_track.title = track.title
+		new_track.artist = track.user['username']
+		new_track.location = 'S'
+		user.library.append(new_track)
+
+		cursor.execute('''
+			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
+			''', (new_track.id, new_track.title, new_track.album, new_track.artist, new_track.location, track.id))
+		
+	print ""
+
+	db.commit()
 
 print "   ___           _           _                        "                    
 print "  / _ \\_ __ ___ (_) ___  ___| |_       /\\  /\\___ _ __ _ __ ___   ___  ___" 
@@ -16,47 +66,40 @@ print "              |__/   \n"
 user = User()
 client = Client_Handler(user)
 
-Fav_Size = 0
-S_list = client.S_client.get('/me/favorites', limit=300)
-while Fav_Size != len(S_list):
-	Fav_Size = len(S_list)
-	S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
+db_relpath = path.join('..', 'hermes-userdata')
+if not path.exists(db_relpath):
+	os.mkdir(db_relpath)
 
-G_list = client.G_client.get_all_songs()
+db_path = path.join(db_relpath, user.profile_name+'_db')
+db = sqlite3.connect(db_path)
 
-for track in G_list:
-	new_track = G_Track(track['id'])
-	new_track.id = len(user.library)
-	if len(track['title']) > 0:
-		new_track.title = track['title']
-	if len(track['album']) > 0:
-		new_track.album = track['album']
-	if len(track['artist']) > 0:
-		new_track.artist = track['artist']
-	new_track.location = 'G'
-	user.library.append(new_track)
+cursor = db.cursor()
 
-for track in S_list:
-	new_track = S_Track(track.id)
-	new_track.id = len(user.library)
-	new_track.title = track.title
-	new_track.artist = track.user['username']
-	new_track.location = 'S'
-	user.library.append(new_track)
-	
 print ""
+
+
+# cursor.execute('''
+# 	SELECT artist, album, title FROM tracks
+# 	''')
+# user1 = cursor.fetchone() #retrieve the first row
+# print(user1[0]) #Print the first column retrieved(user's name)
+# all_rows = cursor.fetchall()
+# for row in all_rows:
+#     # row[0] returns the first column in the query (name).
+#     print row[0].encode("utf-8"), row[1].encode("utf-8"), row[2].encode("utf-8")
+
 
 Search_lib = defaultdict(set)
 
 ## Build Database
 
-for track in user.library:
-	for word in track.title.split():	
-		Search_lib[word.upper()].add(track)
-	for word in track.artist.split():
-		Search_lib[word.upper()].add(track)
-	for word in track.album.split():
-		Search_lib[word.upper()].add(track)
+# for track in user.library:
+# 	for word in track.title.split():	
+# 		Search_lib[word.upper()].add(track)
+# 	for word in track.artist.split():
+# 		Search_lib[word.upper()].add(track)
+# 	for word in track.album.split():
+# 		Search_lib[word.upper()].add(track)
 
 ### Allow User Search
 
@@ -66,13 +109,17 @@ player.client = client
 while(True):
 	USI = raw_input("$> ")
 	if USI[:4] == 'play' and len(USI) > 5:
-		player.play_track(client.get_stream_URL(user.library[int(USI[5:])]))
+		cursor.execute("SELECT DISTINCT(id), streamid, location FROM tracks WHERE id LIKE ?", (USI[5:],))
+		track = cursor.fetchone()
+		player.play_track(client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
 	elif USI[:4] == 'stop':
 		player.stop()
 	elif USI[:3] == 'add':
-		player.add(user.library[int(USI[4:])])
+		cursor.execute("SELECT DISTINCT(id), streamid, location FROM tracks WHERE id LIKE ?", (USI[4:],))
+		track = cursor.fetchone()
+		player.add(track[1].encode("utf-8"), track[2].encode("utf-8"), track[0])
 	elif USI[:5] == 'print':
-		player.print_queue()
+		player.print_queue(cursor)
 	elif USI[:5] == 'pause':
 		player.pause()
 	elif USI[:4] == 'play':
@@ -84,8 +131,29 @@ while(True):
 	elif USI[:5] == 'start':
 		player.play_queue()
 	elif USI[:4] == 'quit':
+		db.close()
 		break
+	elif USI[:4] == 'sync':
+		sync(cursor)
 	else:
-		newList = sorted(Search_lib[USI.upper()], key=lambda x: (x.artist, x.album))
-		for track in newList:
-			print track.id, "\t# " ,track.artist.encode("utf-8"), " - ", track.album.encode("utf-8"), " - ", track.title.encode("utf-8")
+
+		print "\n...ARTISTS..............."
+		cursor.execute("SELECT DISTINCT(artist) FROM tracks WHERE artist LIKE ? OR artist LIKE ? ORDER BY artist", (USI+'%', '% '+USI+'%',))
+		all_rows = cursor.fetchall()
+		for row in all_rows:
+		    # row[0] returns the first column in the query (name).
+		    print row[0].encode("utf-8")
+
+		print "\n...ALBUMS..............."
+		cursor.execute("SELECT DISTINCT(album) FROM tracks WHERE album LIKE ? OR album LIKE ? ORDER BY album", (USI+'%', '% '+USI+'%',))
+		all_rows = cursor.fetchall()
+		for row in all_rows:
+		    # row[0] returns the first column in the query (name).
+		    print row[0].encode("utf-8")
+
+		print "\n...TRACKS..............."
+		cursor.execute("SELECT DISTINCT(id), artist, album, title FROM tracks WHERE title LIKE ? OR title LIKE ? ORDER BY artist, album", (USI+'%', '% '+USI+'%',))
+		all_rows = cursor.fetchall()
+		for row in all_rows:
+		    # row[0] returns the first column in the query (name).
+		    print row[0], '\t', row[1].encode("utf-8"), ' - ', row[3].encode("utf-8"), ' - ', row[2].encode("utf-8")
