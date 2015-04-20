@@ -32,6 +32,11 @@ To run the program after a User Profile exists to auto-login::
 
 Eventually you will be greeted with a command prompt. 
 
+On first run of Hermes, you must build your library. To do so type::
+
+	$> sync
+
+
 Type non-command strings to search your library...
 
 Type::

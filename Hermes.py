@@ -5,13 +5,13 @@ from Player import *
 from os import path
 import os
 import sqlite3
+
+
 from collections import defaultdict
 
 def sync(cursor):
-	### Generate Google Play Songs
 	G_list = client.G_client.get_all_songs()
 
-	### Generate Soundcloud Songs
 	Fav_Size = 0
 	S_list = client.S_client.get('/me/favorites', limit=300)
 	while Fav_Size != len(S_list):
@@ -22,16 +22,18 @@ def sync(cursor):
 	cursor.execute('''
 	    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT)
 	''')
-
+	iden = 0
 	for track in G_list:
 		cursor.execute('''
 			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-			''', (len(user.library), track['title'], track['album'], track['artist'], 'G', track['id']))
+			''', (iden, track['title'], track['album'], track['artist'], 'G', track['id']))
+		iden+=1
 
 	for track in S_list:
 		cursor.execute('''
 			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-			''', (len(user.library), track.title, "Unknown Album", track.user['username'], 'S', track.id))
+			''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id))
+		iden+=1
 
 	db.commit()
 
@@ -68,6 +70,20 @@ print ""
 #     # row[0] returns the first column in the query (name).
 #     print row[0].encode("utf-8"), row[1].encode("utf-8"), row[2].encode("utf-8")
 
+
+Search_lib = defaultdict(set)
+
+## Build Database
+
+# for track in user.library:
+# 	for word in track.title.split():	
+# 		Search_lib[word.upper()].add(track)
+# 	for word in track.artist.split():
+# 		Search_lib[word.upper()].add(track)
+# 	for word in track.album.split():
+# 		Search_lib[word.upper()].add(track)
+
+### Allow User Search
 
 player = Player()
 player.client = client
