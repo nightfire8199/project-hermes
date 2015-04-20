@@ -32,7 +32,7 @@ To run the program after a User Profile exists to auto-login::
 
 Eventually you will be greeted with a command prompt. 
 
-Type a string to search your library...
+Type non-command strings to search your library...
 
 Type::
 
@@ -48,10 +48,13 @@ Type::
 
 To control the current track
 
+
 Type::
+	
 	$> add [song-id]
 	$> start
 	$> print
+
 
 To control the queue
 
