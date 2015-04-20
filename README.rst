@@ -17,18 +17,39 @@ Get a Soundcloud Client ID:
 
 Go to http://soundcloud.com/you/apps and register a new app to get a client ID
 
-To run the program::
+To run the program the first time::
 
-	$ python LibraryBuild.py
+	$ python Hermes.py
 
 
-The program will ask for your various credentials before compiling a library
+The program will ask you to build a User Profile upon first run. 
 
-TODO:
+WARNING: USER PROFILES ARE STORED IN PLAIN TEXT
 
-* Build client interface
-* Store authentication credentials locally
-* Store library track metadata locally 
-* Auto-login if credentials stored
-* Auto populate if library stored
-DONE * Convert master library from a list to a dict
+To run the program after a User Profile exists to auto-login::
+
+	$ python Hermes.py [user-profile-name]
+
+Eventually you will be greeted with a command prompt. 
+
+Type a string to search your library...
+
+Type::
+
+	$> play [song-id]
+
+To play a song
+
+Type::
+
+	$> pause
+	$> stop
+	$> play 
+
+To control the current track
+
+Type::
+
+	$> quit
+
+To exit
