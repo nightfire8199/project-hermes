@@ -16,7 +16,11 @@ print "              |__/   \n"
 user = User()
 client = Client_Handler(user)
 
-S_list = client.S_client.get('/me/favorites', limit=500)
+Fav_Size = 0
+S_list = client.S_client.get('/me/favorites', limit=300)
+while Fav_Size != len(S_list):
+	Fav_Size = len(S_list)
+	S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
 
 G_list = client.G_client.get_all_songs()
 
