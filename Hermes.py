@@ -8,7 +8,7 @@ import string
 
 from collections import defaultdict
 
-def sync(cursor):
+def sync(title, cursor):
 	G_list = client.G_client.get_all_songs()
 
 	Fav_Size = 0
@@ -64,8 +64,6 @@ def start(title, cursor):
 	player.play_queue()
 def clear_queue(title, cursor):
 	player.clear_queue()
-def sync(title, cursor):
-	sync(cursor)
 
 
 print "   ___           _           _                        "                    
