@@ -4,11 +4,11 @@ from Player import *
 from os import path
 import os
 import sqlite3
-
+import string
 
 from collections import defaultdict
 
-def sync(cursor):
+def sync(title, cursor):
 	G_list = client.G_client.get_all_songs()
 
 	Fav_Size = 0
@@ -36,6 +36,36 @@ def sync(cursor):
 
 	db.commit()
 
+def play(title, cursor):
+	if len(title) > 0:
+		cursor.execute("SELECT DISTINCT(id), streamid, location FROM tracks WHERE id LIKE ?", (title,))
+		track = cursor.fetchone()
+		player.play_track(client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
+	else:
+		player.play()
+
+def stop(title, cursor):
+	player.stop()
+
+def add(title, cursor):
+	cursor.execute("SELECT DISTINCT(id), streamid, location FROM tracks WHERE id LIKE ?", (title,))
+	track = cursor.fetchone()
+	player.add(track[1].encode("utf-8"), track[2].encode("utf-8"), track[0])
+
+def print_queue(title, cursor):
+	player.print_queue(cursor)
+def pause(title, cursor):
+	player.pause()
+def next(title, cursor):
+	player.play_next()
+def prev(title, cursor):
+	player.play_prev()
+def start(title, cursor):
+	player.play_queue()
+def clear_queue(title, cursor):
+	player.clear_queue()
+
+
 print "   ___           _           _                        "                    
 print "  / _ \\_ __ ___ (_) ___  ___| |_       /\\  /\\___ _ __ _ __ ___   ___  ___" 
 print " / /_)/ '__/ _ \\| |/ _ \\/ __| __|____ / /_/ / _ \\ '__| '_ ` _ \\ / _ \\/ __|"
@@ -47,11 +77,10 @@ print "              |__/   \n"
 user = User()
 client = Client_Handler(user)
 
-db_relpath = path.join('..', 'hermes-userdata')
-if not path.exists(db_relpath):
-	os.mkdir(db_relpath)
+if not path.exists(user.userdata_path):
+	os.mkdir(user.userdata_path)
 
-db_path = path.join(db_relpath, user.profile_name+'_db')
+db_path = path.join(user.userdata_path, user.profile_name+'_db')
 db = sqlite3.connect(db_path)
 
 cursor = db.cursor()
@@ -74,35 +103,33 @@ print ""
 player = Player()
 player.client = client
 
+func_dict = {
+	'play' : play,
+	'stop' : stop,
+	'add'  : add,
+	'print': print_queue,
+	'pause': pause,
+	'next' : next,
+	'prev' : prev,
+	'start': start,
+	'clear': clear_queue,
+	'sync' : sync
+}
+
 while(True):
 	USI = raw_input("$> ")
-	if USI[:4] == 'play' and len(USI) > 5:
-		cursor.execute("SELECT DISTINCT(id), streamid, location FROM tracks WHERE id LIKE ?", (USI[5:],))
-		track = cursor.fetchone()
-		player.play_track(client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
-	elif USI[:4] == 'stop':
-		player.stop()
-	elif USI[:3] == 'add':
-		cursor.execute("SELECT DISTINCT(id), streamid, location FROM tracks WHERE id LIKE ?", (USI[4:],))
-		track = cursor.fetchone()
-		player.add(track[1].encode("utf-8"), track[2].encode("utf-8"), track[0])
-	elif USI[:5] == 'print':
-		player.print_queue(cursor)
-	elif USI[:5] == 'pause':
-		player.pause()
-	elif USI[:4] == 'play':
-		player.play()
-	elif USI[:4] == 'next':
-		player.play_next()
-	elif USI[:4] == 'prev':
-		player.play_prev()
-	elif USI[:5] == 'start':
-		player.play_queue()
-	elif USI[:4] == 'quit':
+
+	if len(USI.split()) > 1:
+		command, tail = USI.split()
+	else:
+		command = USI
+		tail = ''
+
+	if command == 'quit':
 		db.close()
 		break
-	elif USI[:4] == 'sync':
-		sync(cursor)
+	elif command in func_dict.keys():
+		func_dict[command](tail, cursor)
 	else:
 		Art_res = set()
 		Alb_res = set()
