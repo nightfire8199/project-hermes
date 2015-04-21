@@ -38,6 +38,9 @@ class Player:
 	def add(self,sid,location,ident):
 		self.Queue.append([sid,location,ident])
 
+	def clear_queue(self):
+		del self.Queue[:]
+
 	def print_queue(self, cursor):
 		for track in self.Queue:
 			if track is self.Queue[self.pos]:
