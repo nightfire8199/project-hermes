@@ -8,34 +8,6 @@ import string
 
 from collections import defaultdict
 
-def sync(title, cursor):
-	G_list = client.G_client.get_all_songs()
-
-	Fav_Size = 0
-	S_list = client.S_client.get('/me/favorites', limit=300)
-	while Fav_Size != len(S_list):
-		Fav_Size = len(S_list)
-		S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
-
-	# cursor.execute('''DROP TABLE tracks''')
-	cursor.execute('''
-	    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT)
-	''')
-	iden = 0
-	for track in G_list:
-		cursor.execute('''
-			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-			''', (iden, track['title'], track['album'], track['artist'], 'G', track['id']))
-		iden+=1
-
-	for track in S_list:
-		cursor.execute('''
-			INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-			''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id))
-		iden+=1
-
-	db.commit()
-
 def play(title, cursor):
 	if len(title) > 0:
 		cursor.execute("SELECT DISTINCT(id), streamid, location FROM tracks WHERE id LIKE ?", (title,))
@@ -64,6 +36,8 @@ def start(title, cursor):
 	player.play_queue()
 def clear_queue(title, cursor):
 	player.clear_queue()
+def sync(title, cursor):
+	user.sync(cursor,db,client)
 
 
 print "   ___           _           _                        "                    

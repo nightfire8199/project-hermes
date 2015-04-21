@@ -57,6 +57,34 @@ class User:
 
 		return path.join(self.userdata_path, arg)
 
+	def sync(self, cursor, db, client):
+		G_list = client.G_client.get_all_songs()
+
+		Fav_Size = 0
+		S_list = client.S_client.get('/me/favorites', limit=300)
+		while Fav_Size != len(S_list):
+			Fav_Size = len(S_list)
+			S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
+
+		# cursor.execute('''DROP TABLE tracks''')
+		cursor.execute('''
+		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT)
+		''')
+		iden = 0
+		for track in G_list:
+			cursor.execute('''
+				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
+				''', (iden, track['title'], track['album'], track['artist'], 'G', track['id']))
+			iden+=1
+
+		for track in S_list:
+			cursor.execute('''
+				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
+				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id))
+			iden+=1
+
+		db.commit()
+
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')
 		self.G_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
