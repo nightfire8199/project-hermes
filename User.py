@@ -3,6 +3,7 @@ import vlc
 import sys
 import os
 from os import path
+import getpass
 
 class User:
 	
@@ -15,6 +16,7 @@ class User:
 		self.GOOGLE_DEVICE_ID = ""
 		self.SOUNDCLOUD_CLIENT_ID = ""
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
+		self.userdata_path = path.join('..', 'hermes-userdata')
 		if(len(sys.argv) >= 2):
 			try:
 				File = open(self.get_filename(str(sys.argv[1])))
@@ -34,11 +36,10 @@ class User:
 		if arg is None:
 			arg = raw_input('Choose a user profile filename: ')
 		self.profile_name = arg
-		data_dir = path.join('..', 'hermes-userdata')
-		if not path.exists(data_dir):
-			os.mkdir(data_dir)
+		if not path.exists(self.userdata_path):
+			os.mkdir(self.userdata_path)
 
-		return path.join(data_dir, arg)
+		return path.join(self.userdata_path, arg)
 
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')
@@ -53,8 +54,8 @@ class User:
 		
 
 	def authenticate(self,USER_DATA_FILENAME):
-		self.G_username = raw_input("Google Play Account Email:")
-		self.G_password = raw_input("Google Play Account Pass:")
+		self.G_username = raw_input("Google Play Account Email: ")
+		self.G_password = getpass.getpass("Google Play Account Pass: ")
 
 		Deviceclient = Webclient()
 		Deviceclient.login(self.G_username,self.G_password)
@@ -69,7 +70,7 @@ class User:
 				break
 
 		self.S_username = raw_input("Soundcloud Account Username: ")
-		self.S_password = raw_input("Soundcloud Account Password: ")
+		self.S_password = getpass.getpass("Soundcloud Account Password: ")
 		self.SOUNDCLOUD_CLIENT_ID = raw_input("Soundcloud Client ID: ")
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = raw_input("Soundcloud Secret Client ID: ")
 
