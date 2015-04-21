@@ -79,11 +79,10 @@ print "              |__/   \n"
 user = User()
 client = Client_Handler(user)
 
-db_relpath = path.join('..', 'hermes-userdata')
-if not path.exists(db_relpath):
-	os.mkdir(db_relpath)
+if not path.exists(user.userdata_path):
+	os.mkdir(user.userdata_path)
 
-db_path = path.join(db_relpath, user.profile_name+'_db')
+db_path = path.join(user.userdata_path, user.profile_name+'_db')
 db = sqlite3.connect(db_path)
 
 cursor = db.cursor()
