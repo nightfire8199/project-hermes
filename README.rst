@@ -58,6 +58,7 @@ Type::
 	
 	$> add [song-id]
 	$> start
+	$> clear
 	$> print
 
 

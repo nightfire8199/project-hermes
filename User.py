@@ -2,6 +2,7 @@ from gmusicapi import Webclient
 import vlc
 import sys
 import os
+import sqlite3
 from os import path
 import getpass
 import base64
@@ -18,6 +19,7 @@ class User:
 		self.SOUNDCLOUD_CLIENT_ID = ""
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
 		self.enc_key = "private_key"
+
 		if(len(sys.argv) >= 2):
 			try:
 				File = open(self.get_filename(str(sys.argv[1])))
@@ -29,6 +31,13 @@ class User:
 				self.login(self.get_filename(str(sys.argv[1])))
 		else:
 			self.authenticate(self.get_filename())
+
+		if not path.exists(self.userdata_path):
+			os.mkdir(self.userdata_path)
+
+		self.db_path = path.join(self.userdata_path, self.profile_name+'_db')
+		self.db = sqlite3.connect(self.db_path)
+		self.cursor = self.db.cursor()
 
 	def encode(self, key, clear):
 	    enc = []
@@ -57,7 +66,7 @@ class User:
 
 		return path.join(self.userdata_path, arg)
 
-	def sync(self, cursor, db, client):
+	def sync(self, client):
 		G_list = client.G_client.get_all_songs()
 
 		Fav_Size = 0
@@ -67,23 +76,23 @@ class User:
 			S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
 
 		# cursor.execute('''DROP TABLE tracks''')
-		cursor.execute('''
+		self.cursor.execute('''
 		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT)
 		''')
 		iden = 0
 		for track in G_list:
-			cursor.execute('''
+			self.cursor.execute('''
 				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
 				''', (iden, track['title'], track['album'], track['artist'], 'G', track['id']))
 			iden+=1
 
 		for track in S_list:
-			cursor.execute('''
+			self.cursor.execute('''
 				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
 				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id))
 			iden+=1
 
-		db.commit()
+		self.db.commit()
 
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')

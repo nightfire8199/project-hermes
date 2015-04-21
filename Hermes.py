@@ -1,12 +1,6 @@
 from User import *
 from ClientHandler import *
 from Player import *
-from os import path
-import os
-import sqlite3
-import string
-
-from collections import defaultdict
 
 def play(title, cursor):
 	if len(title) > 0:
@@ -37,7 +31,7 @@ def start(title, cursor):
 def clear_queue(title, cursor):
 	player.clear_queue()
 def sync(title, cursor):
-	user.sync(cursor,db,client)
+	user.sync(client)
 
 
 print "   ___           _           _                        "                    
@@ -50,14 +44,6 @@ print "              |__/   \n"
 
 user = User()
 client = Client_Handler(user)
-
-if not path.exists(user.userdata_path):
-	os.mkdir(user.userdata_path)
-
-db_path = path.join(user.userdata_path, user.profile_name+'_db')
-db = sqlite3.connect(db_path)
-
-cursor = db.cursor()
 
 print ""
 
@@ -100,17 +86,17 @@ while(True):
 		tail = ''
 
 	if command == 'quit':
-		db.close()
+		user.db.close()
 		break
 	elif command in func_dict.keys():
-		func_dict[command](tail, cursor)
+		func_dict[command](tail, user.cursor)
 	else:
 		Art_res = set()
 		Alb_res = set()
 		Tra_res = set()
 		for word in USI.split():
-			cursor.execute("SELECT DISTINCT(artist) FROM tracks WHERE artist LIKE ? OR artist LIKE ? ORDER BY artist", (word+'%', '% '+word+'%',))
-			all_rows = cursor.fetchall()
+			user.cursor.execute("SELECT DISTINCT(artist) FROM tracks WHERE artist LIKE ? OR artist LIKE ? ORDER BY artist", (word+'%', '% '+word+'%',))
+			all_rows = user.cursor.fetchall()
 			if(len(Art_res) == 0):
 				for row in all_rows:
 			    		 Art_res.add(row[0].encode("utf-8"))
@@ -121,8 +107,8 @@ while(True):
 				Art_res = Art_res.intersection(temp)
 
 			
-			cursor.execute("SELECT DISTINCT(album) FROM tracks WHERE album LIKE ? OR album LIKE ? ORDER BY album", (word+'%', '% '+word+'%',))
-			all_rows = cursor.fetchall()
+			user.cursor.execute("SELECT DISTINCT(album) FROM tracks WHERE album LIKE ? OR album LIKE ? ORDER BY album", (word+'%', '% '+word+'%',))
+			all_rows = user.cursor.fetchall()
 			if(len(Alb_res) == 0):
 				for row in all_rows:
 			    		 Alb_res.add(row[0].encode("utf-8"))
@@ -133,8 +119,8 @@ while(True):
 				Alb_res = Alb_res.intersection(temp)
 
 			
-			cursor.execute("SELECT DISTINCT(id), artist, album, title FROM tracks WHERE title LIKE ? OR title LIKE ? ORDER BY artist, album", (word+'%', '% '+word+'%',))
-			all_rows = cursor.fetchall()
+			user.cursor.execute("SELECT DISTINCT(id), artist, album, title FROM tracks WHERE title LIKE ? OR title LIKE ? ORDER BY artist, album", (word+'%', '% '+word+'%',))
+			all_rows = user.cursor.fetchall()
 			if(len(Tra_res) == 0):
 				for row in all_rows:
 			    		 Tra_res.add(row)
