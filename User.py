@@ -1,4 +1,5 @@
 from gmusicapi import Webclient
+from Library import *
 
 import sys
 import os
@@ -19,6 +20,8 @@ class User:
 		self.SOUNDCLOUD_CLIENT_ID = ""
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
 		self.enc_key = "private_key"
+
+		self.playlists = []
 
 		if(len(sys.argv) >= 2):
 			try:

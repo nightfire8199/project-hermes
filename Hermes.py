@@ -14,7 +14,7 @@ def stop(title, cursor):
 
 def add(title, cursor):
 	track = user.library_get('id', ['streamid', 'location'], 'id', [], title, True)
-	player.add(track[1].encode("utf-8"), track[2].encode("utf-8"), track[0])
+	player.add(track[0], track[1].encode("utf-8"), track[2].encode("utf-8"))
 
 def print_queue(title, cursor):
 	player.print_queue(cursor)
@@ -42,7 +42,7 @@ print "              |__/   \n"
 
 user = User()
 client = Client_Handler(user)
-player = Player()
+player = Player(user)
 player.client = client
 
 print ""

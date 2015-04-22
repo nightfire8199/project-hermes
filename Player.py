@@ -1,12 +1,15 @@
+from Library import *
+
 import vlc
 
 class Player:
 
-	def __init__(self):
+	def __init__(self, user):
 		self.vlc = vlc.MediaPlayer()
 		self.events = self.vlc.event_manager()
 		self.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.auto_next_queue)
-		self.Queue = []
+		self.Queue = Playlist("queue", user)
+		self.Queue.load()
 		self.pos = 0
 
 	def auto_next_queue(self, arg):
@@ -20,8 +23,8 @@ class Player:
 		self.vlc.play()
 
 	def play_next(self):
-		if self.pos < len(self.Queue):
-			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos+1][0],self.Queue[self.pos+1][1]))
+		if self.pos < len(self.Queue.items):
+			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos+1].streamid,self.Queue.items[self.pos+1].location))
 			self.vlc.play()
 			self.pos+=1
 		else:
@@ -29,28 +32,28 @@ class Player:
 
 	def play_prev(self):
 		if self.pos > 0:
-			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos-1][0],self.Queue[self.pos-1][1]))
+			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos-1].streamid,self.Queue.items[self.pos-1].location))
 			self.vlc.play()
 			self.pos-=1
 		else:
 			print "No previous track exists"
 
-	def add(self,sid,location,ident):
-		self.Queue.append([sid,location,ident])
+	def add(self,ident,sid,location):
+		self.Queue.add(ident, sid, location)
 
 	def clear_queue(self):
-		del self.Queue[:]
+		self.Queue.clear()
 
 	def print_queue(self, cursor):
-		for track in self.Queue:
-			if track is self.Queue[self.pos]:
+		for track in self.Queue.items:
+			if track is self.Queue.items[self.pos]:
 				print ">> ",
-			cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track[2],))
+			cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track.id,))
 			result = cursor.fetchone()
 			print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
 
 	def play_queue(self):
-		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue[self.pos][0],self.Queue[self.pos][1]))
+		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos].streamid,self.Queue.items[self.pos].location))
 		self.vlc.play()
 
 	def play(self):
