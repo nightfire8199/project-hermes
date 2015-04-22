@@ -52,7 +52,7 @@ def clear_queue(title):
 def sync(title):
 	user.sync(client)
 
-def watch(title, cursor):
+def watch(title):
 	if len(title) > 0:
 		user.watched.append(title)
 	else:
