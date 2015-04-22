@@ -51,7 +51,8 @@ class User:
 		if not path.exists(self.watched_file):
 			#print "no watched file"
 			open(self.watched_file, 'w').close()
-		else:
+
+		if os.stat(self.watched_file).st_size > 0:
 			file = open(self.watched_file, 'r')
 			self.watched = pickle.load(file)
 			file.close()
