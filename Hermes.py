@@ -80,7 +80,7 @@ func_dict = {
 	'start': start,
 	'clear': clear_queue,
 	'sync' : sync,
-	'watch': watch
+	'watch': watch,
 	'make' : make_playlist
 }
 
