@@ -9,6 +9,7 @@ import sqlite3
 from os import path
 import getpass
 import base64
+import pickle
 
 class User:
 	
@@ -22,7 +23,6 @@ class User:
 		self.SOUNDCLOUD_CLIENT_ID = ""
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
 		self.enc_key = "private_key"
-		self.watched = []
 
 		self.playlists = []
 
@@ -45,11 +45,28 @@ class User:
 		self.db = sqlite3.connect(self.db_path)
 		self.cursor = self.db.cursor()
 
+		self.watched_file = path.join(self.userdata_path, self.profile_name+"_watched")
+
+		self.watched = []
+		if not path.exists(self.watched_file):
+			print "no watched file"
+			open(self.watched_file, 'w').close()
+		else:
+			file = open(self.watched_file, 'r')
+			self.watched = pickle.load(file)
+			file.close()
+
 		for file in os.listdir(self.userdata_path):
 			if file.startswith("playlist_"):
 				#print "Adding playlist " , file
 				playlist = Playlist(file, self)
 				self.playlists.append(playlist)
+
+	def add_watched(self, path):
+		self.watched.append(path)
+		file = open(self.watched_file, 'w')
+		pickle.dump(self.watched, file)
+		file.close()
 
 	def encode(self, key, clear):
 	    enc = []

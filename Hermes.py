@@ -1,7 +1,6 @@
 from User import *
 from ClientHandler import *
 from Player import *
-from IO import *
 
 def play(title):
 	if len(title) > 0:
@@ -54,7 +53,7 @@ def sync(title):
 
 def watch(title):
 	if len(title) > 0:
-		user.watched.append(title)
+		user.add_watched(title)
 	else:
 		for path in user.watched:
 			print path
@@ -62,12 +61,21 @@ def watch(title):
 def make_playlist(title):
 	user.add_playlist(title)
 
-Print_Banner()
+
+print "   ___           _           _                        "                    
+print "  / _ \\_ __ ___ (_) ___  ___| |_       /\\  /\\___ _ __ _ __ ___   ___  ___" 
+print " / /_)/ '__/ _ \\| |/ _ \\/ __| __|____ / /_/ / _ \\ '__| '_ ` _ \\ / _ \\/ __|"
+print "/ ___/| | | (_) | |  __/ (__| ||_____/ __  /  __/ |  | | | | | |  __/\__ \\"
+print "\\/    |_|  \\___// |\\___|\\___|\\__|    \\/ /_/ \\___|_|  |_| |_| |_|\\___||___/"
+print "              |__/   \n"                                                     
+
 
 user = User()
 client = Client_Handler(user)
 player = Player(user)
 player.client = client
+
+print ""
 
 func_dict = {
 	'play' : play,
@@ -83,6 +91,17 @@ func_dict = {
 	'watch': watch,
 	'make' : make_playlist
 }
+
+def intersect(res, inp):
+	if(len(res) == 0):
+		for row in inp:
+	    		 res.add(row)
+	else:
+		temp = set()
+		for row in inp:
+	    		 temp.add(row)
+		res = res.intersection(temp)
+	return res
 
 while(True):
 	USI = raw_input("$> ")
@@ -112,4 +131,12 @@ while(True):
 			all_rows = user.library_get('id', ['artist','album','title'], 'title', ['artist','album'], word)
 			Tra_res = intersect(Tra_res, all_rows)
 
-		Print_Results(Art_res, Alb_res, Tra_res)
+		print "\n...ARTISTS..............."
+		for [artist] in Art_res:
+			print artist.encode("utf-8")
+		print "\n...ALBUMS..............."
+		for [album] in Alb_res:
+			print album.encode("utf-8")
+		print "\n...TRACKS..............."
+		for [ident,artist,album,track] in Tra_res:
+			print ident, '\t', artist.encode("utf-8"), ' - ', album.encode("utf-8"), ' - ', track.encode("utf-8")
