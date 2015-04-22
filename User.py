@@ -145,19 +145,19 @@ class User:
 
 		# cursor.execute('''DROP TABLE tracks''')
 		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT)
+		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER)
 		''')
 		iden = 0
 		for track in G_list:
 			self.cursor.execute('''
-				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-				''', (iden, track['title'], track['album'], track['artist'], 'G', track['id']))
+				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
+				''', (iden, track['title'], track['album'], track['artist'], 'G', track['id'], track['trackNumber']))
 			iden+=1
 
 		for track in S_list:
 			self.cursor.execute('''
-				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id))
+				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
+				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id, 0))
 			iden+=1
 
 		for track in L_list:
@@ -165,8 +165,8 @@ class User:
 			tag.link(track)
 			if len(tag.getArtist()) and len(tag.getAlbum()) and len(tag.getTitle()) > 0:
 				self.cursor.execute('''
-					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
-					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', track))
+					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
+					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', track, tag.track_num[0]))
 				iden+=1
 			else:
 				print "Could not resolve track metadata for: " + track

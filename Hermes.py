@@ -10,12 +10,12 @@ def play(title):
 		player.play_track(client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
 	elif title.startswith('AL'):
 		clear_queue('')
-		track = user.library_get('id', ['streamid', 'location'], 'album', [], str(recent_Alb[int(title[2:])]))
+		track = user.library_get('id', ['streamid', 'location'], 'album', ['tracknum'], str(recent_Alb[int(title[2:])]))
 		add(track)
 		start('')
 	elif title.startswith('AR'):
 		clear_queue('')
-		track = user.library_get('id', ['streamid', 'location'], 'artist', ['artist','album'], str(recent_Art[int(title[2:])]))
+		track = user.library_get('id', ['streamid', 'location'], 'artist', ['artist','album','tracknum'], str(recent_Art[int(title[2:])]))
 		add(track)
 		start('')
 	else:
@@ -41,7 +41,7 @@ def add(title):
 				user.get_playlist(name).add(track[0], track[1].encode("utf-8"), track[2].encode("utf-8"))
 
 		elif title.startswith('AL'):
-			track = user.library_get('id', ['streamid', 'location'], 'album', [], str(recent_Alb[int(title[2:])]))
+			track = user.library_get('id', ['streamid', 'location'], 'album', ['tracknum'], str(recent_Alb[int(title[2:])]))
 			if queue:
 				add(track)
 			else:
@@ -49,11 +49,10 @@ def add(title):
 					user.get_playlist(name).add(tracks[0], tracks[1].encode("utf-8"), tracks[2].encode("utf-8"))
 
 		elif title.startswith('AR'):
-			track = user.library_get('id', ['streamid', 'location'], 'artist', ['artist','album'], str(recent_Art[int(title[2:])]))
+			track = user.library_get('id', ['streamid', 'location'], 'artist', ['artist','album','tracknum'], str(recent_Art[int(title[2:])]))
 			if queue:
 				add(track)
 			else:
-				print "BOOSH"
 				for tracks in track:
 					user.get_playlist(name).add(tracks[0], tracks[1].encode("utf-8"), tracks[2].encode("utf-8"))
 		else:
@@ -73,8 +72,11 @@ def print_queue(title):
 			return
 	if title == "playlists":
 		user.print_playlists()
-	else:
+	elif len(title) == 0:
 		player.print_queue(user.cursor)
+	else:
+		print "Cannot find playlist <" + title + ">"
+
 def pause(title):
 	player.pause()
 def next(title):
@@ -106,11 +108,11 @@ def make_playlist(title):
 def view(title,recent_Art, recent_Alb, recent_Tra):
 
 	if title[:2] == 'AR'and int(title[2:]) <= len(recent_Art):
-		all_rows_TR = user.library_get('id', ['artist','album','title'], 'artist', ['artist','album'], recent_Art[int(title[2:])])
+		all_rows_TR = user.library_get('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], recent_Art[int(title[2:])])
 		all_rows_AL = user.library_get('album', [], 'artist', ['album'], recent_Art[int(title[2:])])
 		recent_Art, recent_Alb, recent_Tra = Print_Results([], all_rows_AL, all_rows_TR)
 	elif title[:2] == 'AL' and int(title[2:]) <= len(recent_Alb):
-		all_rows = user.library_get('id', ['artist','album','title'], 'album', ['artist','album'], recent_Alb[int(title[2:])])
+		all_rows = user.library_get('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], recent_Alb[int(title[2:])])
 		recent_Art, recent_Alb, recent_Tra = Print_Results([], [], all_rows)
 	else:
 		print "Cannot find: " + title
@@ -177,7 +179,7 @@ while(True):
 			all_rows = user.library_get('album', [], 'album', ['album'], word)
 			Alb_res = intersect(Alb_res, all_rows)
 
-			all_rows = user.library_get('id', ['artist','album','title'], 'title', ['artist','album'], word)
+			all_rows = user.library_get('id', ['artist','album','title','tracknum'], 'title', ['artist','album','tracknum'], word)
 			Tra_res = intersect(Tra_res, all_rows)
 
 		recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
