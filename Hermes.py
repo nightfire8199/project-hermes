@@ -67,6 +67,10 @@ def add_track(title):
 	pass
 
 def print_queue(title):
+	for playlist in user.playlists:
+		if playlist.title == "playlist_"+title:
+			user.print_playlist(title)
+			return
 	if title == "playlists":
 		user.print_playlists()
 	else:

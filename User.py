@@ -103,6 +103,16 @@ class User:
 		for item in self.playlists:
 			if item.title == "playlist_"+name:
 				return item
+		else:
+			print "Playlist \'" + name + "\' not found"
+
+	def print_playlist(self, name):
+		for item in self.playlists:
+			if item.title == "playlist_"+name:
+				for track in item.items:
+					self.cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track.id,))
+					result = self.cursor.fetchone()
+					print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
 
 	def print_playlists(self):
 		print "\n...Playlists..............."

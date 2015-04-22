@@ -72,7 +72,10 @@ Type::
 
 	$> make [playlist-name]
 	$> print playlists
+	$> print [playist-name]
 	$> add [playlist-name] [selection]
+
+To work with other playlists
 
 Type::
 
