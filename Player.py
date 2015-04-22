@@ -53,6 +53,7 @@ class Player:
 			print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
 
 	def play_queue(self):
+		self.pos = 0
 		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos].streamid,self.Queue.items[self.pos].location))
 		self.vlc.play()
 

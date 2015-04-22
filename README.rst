@@ -24,8 +24,6 @@ To run the program the first time::
 
 The program will ask you to build a User Profile upon first run. 
 
-WARNING: USER PROFILES ARE STORED IN PLAIN TEXT
-
 To run the program after a User Profile exists to auto-login::
 
 	$ python Hermes.py [user-profile-name]
@@ -37,11 +35,16 @@ On first run of Hermes, you must build your library. To do so type::
 	$> sync
 
 
-Type non-command strings to search your library...
+Type::
+
+	$> search [terms]
+	$> view [selection]
+
+To navigate your library
 
 Type::
 
-	$> play [song-id]
+	$> play [selection]
 
 To play a song
 
@@ -56,13 +59,19 @@ To control the current track
 
 Type::
 	
-	$> add [song-id]
+	$> add [selection]
 	$> start
 	$> clear
 	$> print
 
 
-To control the queue
+To control the current playlist
+
+Type::
+
+	$> make [playlist-name]
+	$> print playlists
+	$> add [playlist-name] [selection]
 
 Type::
 
