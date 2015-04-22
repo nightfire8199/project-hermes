@@ -51,17 +51,16 @@ def clear_queue(title):
 	player.clear_queue()
 def sync(title):
 	user.sync(client)
-<<<<<<< HEAD
+
 def watch(title, cursor):
 	if len(title) > 0:
 		user.watched.append(title)
 	else:
 		for path in user.watched:
 			print path
-=======
+
 def make_playlist(title):
 	user.add_playlist(title)
->>>>>>> hspitzle-master
 
 Print_Banner()
 
@@ -81,11 +80,8 @@ func_dict = {
 	'start': start,
 	'clear': clear_queue,
 	'sync' : sync,
-<<<<<<< HEAD
 	'watch': watch
-=======
 	'make' : make_playlist
->>>>>>> hspitzle-master
 }
 
 while(True):
