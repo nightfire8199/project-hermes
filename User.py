@@ -47,7 +47,7 @@ class User:
 
 		for file in os.listdir(self.userdata_path):
 			if file.startswith("playlist_"):
-				print "Adding playlist " , file
+				#print "Adding playlist " , file
 				playlist = Playlist(file, self)
 				self.playlists.append(playlist)
 

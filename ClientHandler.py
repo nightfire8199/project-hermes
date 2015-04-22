@@ -14,19 +14,19 @@ class Client_Handler:
 		self.GOOGLE_DEVICE_ID = user.GOOGLE_DEVICE_ID
 		self.SOUNDCLOUD_CLIENT_ID = user.SOUNDCLOUD_CLIENT_ID
 
-		print "Logging into Google Play... ",
+		#print "Logging into Google Play... ",
 		self.G_client = Mobileclient()
 		logged_in = self.G_client.login(user.G_username,user.G_password)
-		if logged_in == True:
-			print "Success"
-		else:
-			print "Failed"
-		print "Logging into Soundcloud... ",
+		#if logged_in == True:
+		#	print "Success"
+		#else:
+		#	print "Failed"
+		#print "Logging into Soundcloud... ",
 		self.S_client = soundcloud.Client(client_id=user.SOUNDCLOUD_CLIENT_ID,
                            client_secret=user.SOUNDCLOUD_CLIENT_SECRET_ID,
                            username=user.S_username,
                            password=user.S_password)
-		print "Success\n"
+		#print "Success\n"
 	
 	def get_stream_URL(self, sid, location):
 		if location == 'G':
