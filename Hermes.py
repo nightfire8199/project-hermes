@@ -88,7 +88,7 @@ def sync(title):
 
 def watch(title):
 	if len(title) > 0:
-		user.watched.append(title)
+		user.add_watched(title)
 	else:
 		for path in user.watched:
 			print path
@@ -116,6 +116,8 @@ client = Client_Handler(user)
 player = Player(user)
 player.client = client
 
+print ""
+
 func_dict = {
 	'play' : play,
 	'stop' : stop,
@@ -131,6 +133,17 @@ func_dict = {
 	'make' : make_playlist,
 	'view' : view
 }
+
+def intersect(res, inp):
+	if(len(res) == 0):
+		for row in inp:
+	    		 res.add(row)
+	else:
+		temp = set()
+		for row in inp:
+	    		 temp.add(row)
+		res = res.intersection(temp)
+	return res
 
 while(True):
 	USI = raw_input("$> ")
@@ -167,4 +180,4 @@ while(True):
 		func_dict[command](tail)
 	else:
 		print "Command <" + command + "> not found"
-		
+

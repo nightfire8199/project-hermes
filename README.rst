@@ -11,6 +11,7 @@ Install Dependencies::
 	$ pip install soundcloud
 	$ pip install gmusicapi
 	$ pip install pyopenssl ndg-httpsclient pyasn1
+	$ pip install eyeD3-pip
 
 
 Get a Soundcloud Client ID:
