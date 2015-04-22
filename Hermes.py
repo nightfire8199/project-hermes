@@ -2,34 +2,56 @@ from User import *
 from ClientHandler import *
 from Player import *
 
-def play(title, cursor):
+def play(title):
 	if len(title) > 0:
 		track = user.library_get('id', ['streamid', 'location'], 'id', [], title, True)
 		player.play_track(client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
 	else:
 		player.play()
 
-def stop(title, cursor):
+def stop(title):
 	player.stop()
 
-def add(title, cursor):
-	track = user.library_get('id', ['streamid', 'location'], 'id', [], title, True)
-	player.add(track[0], track[1].encode("utf-8"), track[2].encode("utf-8"))
+def add(title):
+	queue = True
+	if not title[0].isdigit():
+		name, title = title.split()
+		queue = False
 
-def print_queue(title, cursor):
-	player.print_queue(cursor)
-def pause(title, cursor):
+	track = user.library_get('id', ['streamid', 'location'], 'id', [], title, True)
+
+	if queue:
+		player.add(track[0], track[1].encode("utf-8"), track[2].encode("utf-8"))
+	else:
+		user.get_playlist(name).add(track[0], track[1].encode("utf-8"), track[2].encode("utf-8"))
+
+def add_track(title):
+	pass
+
+def print_queue(title):
+	if title == "playlists":
+		user.print_playlists()
+	else:
+		player.print_queue(user.cursor)
+def pause(title):
 	player.pause()
-def next(title, cursor):
+def next(title):
 	player.play_next()
-def prev(title, cursor):
+def prev(title):
 	player.play_prev()
-def start(title, cursor):
+def start(title):
+	if len(title) > 0:
+		player.Queue = user.get_playlist(title)
+		player.Queue.title = "queue"
+		player.Queue.save()
 	player.play_queue()
-def clear_queue(title, cursor):
+
+def clear_queue(title):
 	player.clear_queue()
-def sync(title, cursor):
+def sync(title):
 	user.sync(client)
+def make_playlist(title):
+	user.add_playlist(title)
 
 
 print "   ___           _           _                        "                    
@@ -57,7 +79,8 @@ func_dict = {
 	'prev' : prev,
 	'start': start,
 	'clear': clear_queue,
-	'sync' : sync
+	'sync' : sync,
+	'make' : make_playlist
 }
 
 def intersect(res, inp):
@@ -74,8 +97,8 @@ def intersect(res, inp):
 while(True):
 	USI = raw_input("$> ")
 
-	if len(USI.split()) > 1:
-		command, tail = USI.split()
+	if len(USI.split(' ', 1)) > 1:
+		command, tail = USI.split(' ', 1)
 	else:
 		command = USI
 		tail = ''
@@ -84,7 +107,7 @@ while(True):
 		user.db.close()
 		break
 	elif command in func_dict.keys():
-		func_dict[command](tail, user.cursor)
+		func_dict[command](tail)
 	else:
 		Art_res = set()
 		Alb_res = set()

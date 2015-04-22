@@ -4,22 +4,26 @@ from os import path
 
 class Playlist:
 
-	def __init__(self, title, user=None):
+	def __init__(self, title, user):
 		self.title = title
 		self.items = []
-		self.shelve = path.join(user.userdata_path, 'playlist_'+self.title)
+		self.user = user
+		self.load()
+
+	def get_shelve(self):
+		return path.join(self.user.userdata_path, self.title)
 
 	def save(self):
-		shelf = shelve.open(self.shelve, 'c')
+		shelf = shelve.open(self.get_shelve(), 'c')
 		shelf[self.title] = self.items
 		shelf.close()
 
 	def load(self):
-		if not path.exists(self.shelve):
+		if not path.exists(self.get_shelve()):
 			self.save()
 			return
 
-		shelf = shelve.open(self.shelve, 'r')
+		shelf = shelve.open(self.get_shelve(), 'r')
 		self.items = shelf[self.title]
 		shelf.close()
 
