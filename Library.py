@@ -37,7 +37,8 @@ class Playlist:
 
 	def printItems(self):
 		for item in self.items:
-			item.printItem()
+			track = self.user.library_get('id', ['artist', 'title'], 'id', [], str(item.id), True)
+			print track[1].encode("utf-8"), " - ", track[2].encode("utf-8")
 
 
 class PlaylistItem:

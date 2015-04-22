@@ -106,7 +106,11 @@ def view(title):
 		all_rows = user.library_get('id', ['artist','album','title'], 'album', ['artist','album'], recent_Alb[int(title[2:])])
 		Print_Results([], [], all_rows, recent_Art, recent_Alb, recent_Tra)
 	else:
-		print "Cannot find: " + title
+		playlist = user.get_playlist(title)
+		if playlist != None:
+			playlist.printItems()
+		else:
+			print "Cannot find: " + title
 	
 
 Print_Banner()

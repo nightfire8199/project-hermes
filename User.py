@@ -103,6 +103,7 @@ class User:
 		for item in self.playlists:
 			if item.title == "playlist_"+name:
 				return item
+		return None
 
 	def print_playlists(self):
 		print "\n...Playlists..............."
