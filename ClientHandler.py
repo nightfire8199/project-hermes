@@ -26,7 +26,7 @@ class Client_Handler:
                            client_secret=user.SOUNDCLOUD_CLIENT_SECRET_ID,
                            username=user.S_username,
                            password=user.S_password)
-		print "Success"
+		print "Success\n"
 	
 	def get_stream_URL(self, sid, location):
 		if location == 'G':
