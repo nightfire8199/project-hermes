@@ -1,4 +1,5 @@
 from gmusicapi import Webclient
+from Library import *
 
 import eyeD3
 
@@ -23,6 +24,8 @@ class User:
 		self.enc_key = "private_key"
 		self.watched = []
 
+		self.playlists = []
+
 		if(len(sys.argv) >= 2):
 			try:
 				File = open(self.get_filename(str(sys.argv[1])))
@@ -41,6 +44,12 @@ class User:
 		self.db_path = path.join(self.userdata_path, self.profile_name+'_db')
 		self.db = sqlite3.connect(self.db_path)
 		self.cursor = self.db.cursor()
+
+		for file in os.listdir(self.userdata_path):
+			if file.startswith("playlist_"):
+				print "Adding playlist " , file
+				playlist = Playlist(file, self)
+				self.playlists.append(playlist)
 
 	def encode(self, key, clear):
 	    enc = []
@@ -68,6 +77,22 @@ class User:
 			os.mkdir(self.userdata_path)
 
 		return path.join(self.userdata_path, arg)
+
+	def add_playlist(self, name):
+		self.playlists.append(Playlist("playlist_"+name, self))
+
+	def get_playlist(self, name):
+		for item in self.playlists:
+			if item.title == "playlist_"+name:
+				return item
+
+	def print_playlists(self):
+		print "\n...Playlists..............."
+		for playlist in self.playlists:
+			print "    ", playlist.title[9:]
+
+	# def remove_playlist(self, name):
+	# 	self.playlists.append(Playlist(name, self))
 
 	def sync(self, client):
 
