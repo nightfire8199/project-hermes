@@ -7,7 +7,11 @@ def Print_Banner():
 	print "\\/    |_|  \\___// |\\___|\\___|\\__|    \\/ /_/ \\___|_|  |_| |_| |_|\\___||___/"
 	print "              |__/   \n"                                                     
 
-def Print_Results(Artists, Albums, Tracks, R_Art, R_Alb, R_Tra):
+def Print_Results(Artists, Albums, Tracks):
+
+	R_Art = []
+	R_Alb = []
+	R_Tra = []
 
 	if len(Artists) > 0:
 		AR = 0
@@ -30,6 +34,8 @@ def Print_Results(Artists, Albums, Tracks, R_Art, R_Alb, R_Tra):
 			print "T" + str(T), '\t', artist.encode("utf-8"), ' - ', album.encode("utf-8"), ' - ', track.encode("utf-8")
 			R_Tra.append(ident)
 			T += 1
+
+	return [R_Art, R_Alb, R_Tra]
 
 def intersect(res, inp):
 	if(len(res) == 0):
