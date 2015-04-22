@@ -54,7 +54,7 @@ def sync(title):
 
 def watch(title):
 	if len(title) > 0:
-		user.watched.append(title)
+		user.add_watched(title)
 	else:
 		for path in user.watched:
 			print path
