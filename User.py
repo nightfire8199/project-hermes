@@ -109,10 +109,12 @@ class User:
 		query = 'SELECT DISTINCT(' + distinct + ')'
 		for item in get_others:
 			query += ', ' + item
-		query += ' FROM tracks WHERE ' + where_like + ' LIKE ? OR ' + where_like +' LIKE ? ORDER BY '
-		for item in ordered_return:
-			query += item + ', '
-		query = query[:len(query)-2]
+		query += ' FROM tracks WHERE ' + where_like + ' LIKE ? OR ' + where_like +' LIKE ?'
+		if len(ordered_return) > 0:		
+			query += ' ORDER BY '
+			for item in ordered_return:
+				query += item + ', '
+			query = query[:len(query)-2]
 		self.cursor.execute(query, (USI+'%', '% '+USI+'%',))
 		return self.cursor.fetchall()
 
