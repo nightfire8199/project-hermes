@@ -31,6 +31,12 @@ def clear_queue(title, cursor):
 	player.clear_queue()
 def sync(title, cursor):
 	user.sync(client)
+def watch(title, cursor):
+	if len(title) > 0:
+		user.watched.append(title)
+	else:
+		for path in user.watched:
+			print path
 
 Print_Banner()
 
@@ -49,7 +55,8 @@ func_dict = {
 	'prev' : prev,
 	'start': start,
 	'clear': clear_queue,
-	'sync' : sync
+	'sync' : sync,
+	'watch': watch
 }
 
 while(True):

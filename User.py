@@ -1,5 +1,7 @@
 from gmusicapi import Webclient
 
+import eyeD3
+
 import sys
 import os
 import sqlite3
@@ -19,6 +21,7 @@ class User:
 		self.SOUNDCLOUD_CLIENT_ID = ""
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
 		self.enc_key = "private_key"
+		self.watched = []
 
 		if(len(sys.argv) >= 2):
 			try:
@@ -67,7 +70,19 @@ class User:
 		return path.join(self.userdata_path, arg)
 
 	def sync(self, client):
-		G_list = client.G_client.get_all_songs()
+
+		L_list = []
+		for path in self.watched:
+			filelist = []
+			for (dirpath, dirnames, filenames) in os.walk(path):
+    				filelist.extend(dirpath + '/' + filename for filename in filenames)
+			L_list += filelist	
+
+		for File in L_list:
+			if not (File.endswith('mp3') or File.endswith('wav')):
+				L_list.remove(File)
+
+		G_list = client.G_client.get_all_songs()	
 
 		Fav_Size = 0
 		S_list = client.S_client.get('/me/favorites', limit=300)
@@ -91,6 +106,17 @@ class User:
 				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
 				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id))
 			iden+=1
+
+		for track in L_list:
+			tag = eyeD3.Tag()
+			tag.link(track)
+			if len(tag.getArtist()) and len(tag.getAlbum()) and len(tag.getTitle()) > 0:
+				self.cursor.execute('''
+					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?)
+					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', track))
+				iden+=1
+			else:
+				print "Could not resolve track metadata for: " + track
 
 		self.db.commit()
 
