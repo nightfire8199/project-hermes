@@ -105,7 +105,7 @@ class User:
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = File.readline().rstrip('\n')
 		File.close()
 
-	def library_get(self, distinct, get_others, where_like, ordered_return, USI):
+	def library_get(self, distinct, get_others, where_like, ordered_return, USI, single = False):
 		query = 'SELECT DISTINCT(' + distinct + ')'
 		for item in get_others:
 			query += ', ' + item
@@ -116,7 +116,10 @@ class User:
 				query += item + ', '
 			query = query[:len(query)-2]
 		self.cursor.execute(query, (USI+'%', '% '+USI+'%',))
-		return self.cursor.fetchall()
+		if single == False:
+			return self.cursor.fetchall()
+		else:
+			return self.cursor.fetchone()
 
 	def authenticate(self,USER_DATA_FILENAME):
 		self.G_username = raw_input("Google Play Account Email: ")
