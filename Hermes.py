@@ -92,16 +92,16 @@ while(True):
 		Alb_res = set()
 		Tra_res = set()
 		for word in USI.split():
-			user.cursor.execute("SELECT DISTINCT(artist) FROM tracks WHERE artist LIKE ? OR artist LIKE ? ORDER BY artist", (word+'%', '% '+word+'%',))
-			all_rows = user.cursor.fetchall()
+			#user.cursor.execute("SELECT DISTINCT(artist) FROM tracks WHERE artist LIKE ? OR artist LIKE ? ORDER BY artist", (word+'%', '% '+word+'%',))
+			all_rows = user.library_get('artist', [], 'artist', ['artist'], word)
 			Art_res = intersect(Art_res, all_rows)
 			
-			user.cursor.execute("SELECT DISTINCT(album) FROM tracks WHERE album LIKE ? OR album LIKE ? ORDER BY album", (word+'%', '% '+word+'%',))
-			all_rows = user.cursor.fetchall()
+			#user.cursor.execute("SELECT DISTINCT(album) FROM tracks WHERE album LIKE ? OR album LIKE ? ORDER BY album", (word+'%', '% '+word+'%',))
+			all_rows = user.library_get('album', [], 'album', ['album'], word)
 			Alb_res = intersect(Alb_res, all_rows)
 			
-			user.cursor.execute("SELECT DISTINCT(id), artist, album, title FROM tracks WHERE title LIKE ? OR title LIKE ? ORDER BY artist, album", (word+'%', '% '+word+'%',))
-			all_rows = user.cursor.fetchall()
+			#user.cursor.execute("SELECT DISTINCT(id), artist, album, title FROM tracks WHERE title LIKE ? OR title LIKE ? ORDER BY artist, album", (word+'%', '% '+word+'%',))
+			all_rows = user.library_get('id', ['artist','album','title'], 'title', ['artist','album'], word)
 			Tra_res = intersect(Tra_res, all_rows)
 
 		print "\n...ARTISTS..............."

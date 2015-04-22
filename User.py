@@ -1,5 +1,5 @@
 from gmusicapi import Webclient
-import vlc
+
 import sys
 import os
 import sqlite3
@@ -104,7 +104,17 @@ class User:
 		self.SOUNDCLOUD_CLIENT_ID = File.readline().rstrip('\n')
 		self.SOUNDCLOUD_CLIENT_SECRET_ID = File.readline().rstrip('\n')
 		File.close()
-		
+
+	def library_get(self, distinct, get_others, where_like, ordered_return, USI):
+		query = 'SELECT DISTINCT(' + distinct + ')'
+		for item in get_others:
+			query += ', ' + item
+		query += ' FROM tracks WHERE ' + where_like + ' LIKE ? OR ' + where_like +' LIKE ? ORDER BY '
+		for item in ordered_return:
+			query += item + ', '
+		query = query[:len(query)-2]
+		self.cursor.execute(query, (USI+'%', '% '+USI+'%',))
+		return self.cursor.fetchall()
 
 	def authenticate(self,USER_DATA_FILENAME):
 		self.G_username = raw_input("Google Play Account Email: ")
