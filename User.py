@@ -1,5 +1,6 @@
 from gmusicapi import Webclient
 from Library import *
+import soundcloud
 
 import eyeD3
 
@@ -103,8 +104,6 @@ class User:
 		for item in self.playlists:
 			if item.title == "playlist_"+name:
 				return item
-		else:
-			print "Playlist \'" + name + "\' not found"
 
 	def print_playlist(self, name):
 		for item in self.playlists:
@@ -123,7 +122,7 @@ class User:
 	# 	self.playlists.append(Playlist(name, self))
 
 	def sync(self, client):
-
+		self.cursor.execute('''DROP TABLE IF EXISTS tracks''')
 		L_list = []
 		for path in self.watched:
 			filelist = []
@@ -174,25 +173,46 @@ class User:
 		self.db.commit()
 
 	def sync_stream(self,client,player):
-		tracks = client.S_client.get('/me/activities/tracks/affiliated', limit = 50)	
-		
-		#for track in tracks.obj['collection']:
-		#	self.stream.append([track['origin']['title'], track['origin']['user']['username'], track['origin']['id']])	
+		self.cursor.execute('''DROP TABLE IF EXISTS stream''')
+		self.db.commit()
+
+		tracks = client.S_client.get('/me/activities/tracks/affiliated', limit = 200)
 		
 		self.cursor.execute('''
 		    CREATE TABLE IF NOT EXISTS stream(id INTEGER PRIMARY KEY, title TEXT, album TEXT,artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER)
 		''')
 
 		iden = 0
+		duplifier = []
 		for track in tracks.obj['collection']:
-			self.cursor.execute('''
-				INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
-				''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', track['origin']['id'], 0))
-			player.add(iden,track['origin']['id'],'S')
-			iden+=1
+			if track['origin']['id'] in duplifier:
+				continue
+			if track['origin']['kind'] == 'playlist':
+				
+				Playtracks = client.S_client.get('/playlists/99297471/tracks')
+				for play in Playtracks:
+					if play.id in duplifier:
+						continue
+					self.cursor.execute('''
+						INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
+						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', play.id, 0))
+					self.db.commit()
+					player.add(iden,int(play.id),'S')
+					duplifier.append(play.id)
+					duplifier.append(track['origin']['id'])
+					iden +=1	
+			else:
+				self.cursor.execute('''
+					INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
+					''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', track['origin']['id'], 0))
+				self.db.commit()				
+				player.add(iden,int(track['origin']['id']),'S')
+				duplifier.append(track['origin']['id'])
+				iden+=1
+			if iden == 50:
+				break
 
 		self.db.commit()
-			
 
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')
@@ -210,6 +230,22 @@ class User:
 		for item in get_others:
 			query += ', ' + item
 		query += ' FROM tracks WHERE ' + where_like + ' LIKE ? OR ' + where_like +' LIKE ?'
+		if len(ordered_return) > 0:		
+			query += ' ORDER BY '
+			for item in ordered_return:
+				query += item + ', '
+			query = query[:len(query)-2]
+		self.cursor.execute(query, (USI+'%', '% '+USI+'%',))
+		if single == False:
+			return self.cursor.fetchall()
+		else:
+			return self.cursor.fetchone()
+
+	def stream_get(self, distinct, get_others, where_like, ordered_return, USI, single = False):
+		query = 'SELECT DISTINCT(' + distinct + ')'
+		for item in get_others:
+			query += ', ' + item
+		query += ' FROM stream WHERE ' + where_like + ' LIKE ? OR ' + where_like +' LIKE ?'
 		if len(ordered_return) > 0:		
 			query += ' ORDER BY '
 			for item in ordered_return:

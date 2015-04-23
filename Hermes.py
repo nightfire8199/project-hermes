@@ -98,6 +98,7 @@ def start(title):
 	if title == 'stream':
 		player.Queue.clear()
 		player.Queue.title = "stream"
+		player.pos = 0
 		user.sync_stream(client,player)
 	else:
 		if len(title) > 0:
@@ -134,6 +135,32 @@ def view(title,recent_Art, recent_Alb, recent_Tra):
 		print "Cannot find: " + title
 
 	return [recent_Art, recent_Alb, recent_Tra]
+
+def like(title):
+	if player.Queue.title == 'stream':
+		client.S_client.put('/me/favorites/%d' % player.Queue.items[player.pos].streamid)
+	else:
+		print "The stream is not curretly playing"
+
+def now(title):
+	if player.Queue.title == 'queue' and len(player.Queue.items) > 0:
+		track = user.library_get('id', ['title', 'artist', 'location'], 'id', [], str(player.Queue.items[player.pos].id), True)
+	elif player.Queue.title == 'stream' and len(player.Queue.items) > 0:
+		track = user.stream_get('id', ['title', 'artist', 'location'], 'id', [], str(player.Queue.items[player.pos].id), True)
+	else:
+		print "Nothing is playing"
+		return
+
+	print "Now Playing:\t" + track[1] + "\t by \t" + track[2] + "\t from \t",
+
+	if track[3] == 'S':
+		print "Soundcloud"
+	elif track[3] == 'G':
+		print "Google Play"
+	elif track[3] == 'L':
+		print "Local Music"
+	else:
+		print "Unknown"
 	
 
 Print_Banner()
@@ -158,7 +185,9 @@ func_dict = {
 	'sync' : sync,
 	'watch': watch,
 	'make' : make_playlist,
-	'view' : view
+	'view' : view,
+	'like' : like,
+	'now' : now
 }
 
 def intersect(res, inp):
@@ -183,6 +212,7 @@ while(True):
 
 	if command == 'quit':
 		user.cursor.execute('''DROP TABLE IF EXISTS stream''')
+		user.db.commit()
 		user.db.close()
 		break
 
