@@ -6,12 +6,12 @@ from PyQt4 import QtCore, QtGui, uic
 
 class Hermes:
 
-	def __init__(self, QT_trackBar):
+	def __init__(self, QT_trackBar,QT_nowPlaying):
 		Print_Banner()
 
 		self.user = User()
 		self.client = Client_Handler(self.user)
-		self.player = Player(self.user, QT_trackBar)
+		self.player = Player(self.user, QT_trackBar,QT_nowPlaying)
 		self.player.client = self.client
 
 		print ""

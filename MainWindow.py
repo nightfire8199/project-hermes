@@ -16,7 +16,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.createActions()
         self.connectActions()
         self.addMenu()
-        self.hermes = Hermes(self.trackSlider)
+        self.hermes = Hermes(self.trackSlider,self.nowPlaying)
+
+	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
+	for track in currQueue:
+		newItem = SongItem(track)
+        	self.nowPlaying.addItem(newItem)
+		
 
     def createActions(self):
         self.quitAction = QtGui.QAction('&Quit', self)        
@@ -64,6 +70,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
 
     def playSelected(self):
+	print self.nowPlaying.currentRow()
         selected = self.nowPlaying.selectedItems()
         if len(selected) == 0:
             return
