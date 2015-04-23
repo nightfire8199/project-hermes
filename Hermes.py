@@ -240,7 +240,7 @@ class Hermes:
 
 		recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
 
-		return Tra_res
+		return [Art_res, Alb_res, Tra_res]
 
 	def quit(self):
 		self.user.cursor.execute('''DROP TABLE IF EXISTS stream''')

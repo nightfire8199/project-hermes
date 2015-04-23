@@ -37,8 +37,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchBox.returnPressed.connect(self.search)
         self.playButton.clicked.connect(self.playSelected)
         self.pauseButton.clicked.connect(self.pauseCurrent)
-        self.searchResults.itemDoubleClicked.connect(self.playSelected)
-        self.searchResults.itemDoubleClicked.connect(self.addToQueueAndPlay)
+        self.searchResults_Tra.itemDoubleClicked.connect(self.playSelected)
+        self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
         self.addButton.clicked.connect(self.addToQueue)
 	self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
@@ -54,11 +54,15 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def search(self): # button event handler
         searchText = self.searchBox.text()
-        result = self.hermes.search(searchText, self)
+        [artists,albums,tracks] = self.hermes.search(searchText, self)
 
-        self.searchResults.clear()
-        for song in result:
-            self.searchResults.addItem(SongItem(song))
+        self.searchResults_Tra.clear()
+        for song in tracks:
+            self.searchResults_Tra.addItem(SongItem(song))
+	for album in albums:
+	    self.searchResults_Alb.addItem(AlbumItem(album))
+	for artist in artists:
+	    self.searchResults_Art.addItem(ArtistItem(artist))
 
     def addToQueueAndPlay(self):
         newItem = self.addToQueue()
@@ -81,7 +85,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.hermes.pause()
 
     def addToQueue(self):
-        selected = self.searchResults.selectedItems()
+        selected = self.searchResults_Tra.selectedItems()
         if len(selected) == 0:
             return
         toAdd = selected[0]
