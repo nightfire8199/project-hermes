@@ -11,6 +11,7 @@ class Player:
 		self.Queue = Playlist("queue", user)
 		self.Queue.load()
 		self.pos = 0
+		self.is_paused = False
 
 	def auto_next_queue(self, arg):
 		self.vlc = vlc.MediaPlayer()
@@ -20,12 +21,12 @@ class Player:
 
 	def play_track(self,track):
 		self.vlc.set_mrl(track)
-		self.vlc.play()
+		self.play()
 
 	def play_next(self):
 		if self.pos < len(self.Queue.items):
 			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos+1].streamid,self.Queue.items[self.pos+1].location))
-			self.vlc.play()
+			self.play()
 			self.pos+=1
 		else:
 			print "No next track has been queued"
@@ -33,7 +34,7 @@ class Player:
 	def play_prev(self):
 		if self.pos > 0:
 			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos-1].streamid,self.Queue.items[self.pos-1].location))
-			self.vlc.play()
+			self.play()
 			self.pos-=1
 		else:
 			print "No previous track exists"
@@ -64,15 +65,21 @@ class Player:
 	def play_queue(self):
 		self.pos = 0
 		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos].streamid,self.Queue.items[self.pos].location))
-		self.vlc.play()
+		self.play()
 
 	def play(self):
 		self.vlc.play()
+		self.is_paused = False
+
+	def paused(self):
+		return self.is_paused
 
 	def pause(self):
 		self.vlc.pause()
+		self.is_paused = True
 
 	def stop(self):
 		self.vlc.stop()
+		self.is_playing = False
 
 	

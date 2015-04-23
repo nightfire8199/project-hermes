@@ -121,11 +121,10 @@ class User:
 	# def remove_playlist(self, name):
 	# 	self.playlists.append(Playlist(name, self))
 
-	def get_id_string(streamid, title, album, artist):
-		return streamid + '_' + title + '_' + album + '_' + artist
 
 	def sync(self, client):
 		#self.cursor.execute('''DROP TABLE IF EXISTS tracks''')
+
 		L_list = []
 		for path in self.watched:
 			filelist = []
@@ -146,7 +145,7 @@ class User:
 			S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
 
 		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum INTEGER)
+		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum 
 		''')
 		self.cursor.execute('''SELECT count(*) FROM tracks''')
 		iden = self.cursor.fetchone()[0]
@@ -204,6 +203,7 @@ class User:
 						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0))
 					self.db.commit()
 					player.add(iden,'S_' + str(play.id),'S')
+
 					duplifier.append(play.id)
 					duplifier.append(track['origin']['id'])
 					iden +=1	
@@ -213,6 +213,7 @@ class User:
 					''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', 'S_'+ str(track['origin']['id']), 0))
 				self.db.commit()				
 				player.add(iden,'S_' + str(track['origin']['id']),'S')
+
 				duplifier.append(track['origin']['id'])
 				iden+=1
 			if iden == 50:

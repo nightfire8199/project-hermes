@@ -16,6 +16,7 @@ def Print_Results(Artists, Albums, Tracks):
 	if len(Artists) > 0:
 		AR = 0
 		print "\n-----------------------------[ Artists ]----------------------------"
+
 		for [artist] in Artists:
 			print "AR" + str(AR), '\t', artist.encode("utf-8")
 			R_Art.append(artist.encode("utf-8"))
