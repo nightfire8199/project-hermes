@@ -43,14 +43,23 @@ class Player:
 
 	def clear_queue(self):
 		self.Queue.clear()
+		self.pos = 0
 
 	def print_queue(self, cursor):
-		for track in self.Queue.items:
-			if track is self.Queue.items[self.pos]:
-				print ">> ",
-			cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track.id,))
-			result = cursor.fetchone()
-			print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
+		if self.Queue.title == "stream":
+			for track in self.Queue.items:
+				if track is self.Queue.items[self.pos]:
+					print ">> ",
+				cursor.execute("SELECT artist, title FROM stream WHERE id LIKE ?", (track.id,))
+				result = cursor.fetchone()
+				print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")	
+		else:
+			for track in self.Queue.items:
+				if track is self.Queue.items[self.pos]:
+					print ">> ",
+				cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track.id,))
+				result = cursor.fetchone()
+				print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
 
 	def play_queue(self):
 		self.pos = 0

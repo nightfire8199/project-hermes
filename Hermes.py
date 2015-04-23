@@ -5,6 +5,11 @@ from IO import *
 
 
 def play(title):
+	if player.Queue.title == 'stream':
+		player.stop()
+		player.Queue.clear()
+		player.Queue.title = 'queue'
+		player.pos = 0
 	if title.startswith('T'):	
 		track = user.library_get('id', ['streamid', 'location'], 'id', [], str(recent_Tra[int(title[1:])]), True)
 		player.play_track(client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
@@ -25,6 +30,12 @@ def stop(title):
 	player.stop()
 
 def add(title):
+
+	if player.Queue.title == 'stream':
+		player.stop()
+		player.Queue.clear()
+		player.Queue.title = 'queue'
+		player.pos = 0
 	queue = True
 
 	if isinstance(title, basestring):
@@ -84,10 +95,15 @@ def next(title):
 def prev(title):
 	player.play_prev()
 def start(title):
-	if len(title) > 0:
-		player.Queue = user.get_playlist(title)
-		player.Queue.title = "queue"
-		player.Queue.save()
+	if title == 'stream':
+		player.Queue.clear()
+		player.Queue.title = "stream"
+		user.sync_stream(client,player)
+	else:
+		if len(title) > 0:
+			player.Queue = user.get_playlist(title)
+			player.Queue.title = "queue"
+			player.Queue.save()
 	player.play_queue()
 
 def clear_queue(title):
@@ -166,8 +182,10 @@ while(True):
 		tail = ''
 
 	if command == 'quit':
+		user.cursor.execute('''DROP TABLE IF EXISTS stream''')
 		user.db.close()
 		break
+
 	if command == 'search':
 		Art_res = set()
 		Alb_res = set()

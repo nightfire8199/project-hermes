@@ -173,6 +173,27 @@ class User:
 
 		self.db.commit()
 
+	def sync_stream(self,client,player):
+		tracks = client.S_client.get('/me/activities/tracks/affiliated', limit = 50)	
+		
+		#for track in tracks.obj['collection']:
+		#	self.stream.append([track['origin']['title'], track['origin']['user']['username'], track['origin']['id']])	
+		
+		self.cursor.execute('''
+		    CREATE TABLE IF NOT EXISTS stream(id INTEGER PRIMARY KEY, title TEXT, album TEXT,artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER)
+		''')
+
+		iden = 0
+		for track in tracks.obj['collection']:
+			self.cursor.execute('''
+				INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
+				''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', track['origin']['id'], 0))
+			player.add(iden,track['origin']['id'],'S')
+			iden+=1
+
+		self.db.commit()
+			
+
 	def login(self,USER_DATA_FILENAME):
 		File = open(USER_DATA_FILENAME,'r')
 		self.G_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
