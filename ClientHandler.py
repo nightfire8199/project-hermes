@@ -30,11 +30,11 @@ class Client_Handler:
 	
 	def get_stream_URL(self, sid, location):
 		if location == 'G':
-			return self.G_client.get_stream_url(sid,self.GOOGLE_DEVICE_ID)
+			return self.G_client.get_stream_url(sid[2:],self.GOOGLE_DEVICE_ID)
 		elif location == 'S':
-			return self.S_client.get('/tracks/' + str(sid)).stream_url + "?client_id=" + self.SOUNDCLOUD_CLIENT_ID
+			return self.S_client.get('/tracks/' + str(sid[2:])).stream_url + "?client_id=" + self.SOUNDCLOUD_CLIENT_ID
 		elif location == 'L':
-			return sid
+			return sid[2:]
 		else:
 			print "Error: Track not found"
 

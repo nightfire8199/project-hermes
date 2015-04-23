@@ -54,6 +54,7 @@ Type::
 	$> pause
 	$> stop
 	$> play 
+	$> now
 
 To control the current track
 
@@ -76,6 +77,12 @@ Type::
 	$> add [playlist-name] [selection]
 
 To work with other playlists
+
+Type::
+
+	$> start stream
+
+To start the soundcloud stream
 
 Type::
 

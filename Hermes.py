@@ -138,7 +138,7 @@ def view(title,recent_Art, recent_Alb, recent_Tra):
 
 def like(title):
 	if player.Queue.title == 'stream':
-		client.S_client.put('/me/favorites/%d' % player.Queue.items[player.pos].streamid)
+		client.S_client.put('/me/favorites/%d' % int(player.Queue.items[player.pos].streamid[2:]))
 	else:
 		print "The stream is not curretly playing"
 
@@ -224,7 +224,7 @@ while(True):
 			all_rows = user.library_get('artist', [], 'artist', ['artist'], word)
 			Art_res = intersect(Art_res, all_rows)
 			
-			all_rows = user.library_get('album', [], 'album', ['album'], word)
+			all_rows = user.library_get('album', ['artist'], 'album', ['album'], word)
 			Alb_res = intersect(Alb_res, all_rows)
 
 			all_rows = user.library_get('id', ['artist','album','title','tracknum'], 'title', ['artist','album','tracknum'], word)
