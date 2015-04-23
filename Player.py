@@ -11,6 +11,7 @@ class Player:
 		self.Queue = Playlist("queue", user)
 		self.Queue.load()
 		self.pos = 0
+		self.is_playing = False
 
 	def auto_next_queue(self, arg):
 		self.vlc = vlc.MediaPlayer()
@@ -20,12 +21,12 @@ class Player:
 
 	def play_track(self,track):
 		self.vlc.set_mrl(track)
-		self.vlc.play()
+		self.play()
 
 	def play_next(self):
 		if self.pos < len(self.Queue.items):
 			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos+1].streamid,self.Queue.items[self.pos+1].location))
-			self.vlc.play()
+			self.play()
 			self.pos+=1
 		else:
 			print "No next track has been queued"
@@ -33,7 +34,7 @@ class Player:
 	def play_prev(self):
 		if self.pos > 0:
 			self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos-1].streamid,self.Queue.items[self.pos-1].location))
-			self.vlc.play()
+			self.play()
 			self.pos-=1
 		else:
 			print "No previous track exists"
@@ -43,27 +44,41 @@ class Player:
 
 	def clear_queue(self):
 		self.Queue.clear()
+		self.pos = 0
 
 	def print_queue(self, cursor):
-		for track in self.Queue.items:
-			if track is self.Queue.items[self.pos]:
-				print ">> ",
-			cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track.id,))
-			result = cursor.fetchone()
-			print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
+		if self.Queue.title == "stream":
+			for track in self.Queue.items:
+				if track is self.Queue.items[self.pos]:
+					print ">> ",
+				cursor.execute("SELECT artist, title FROM stream WHERE id LIKE ?", (track.id,))
+				result = cursor.fetchone()
+				print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")	
+		else:
+			for track in self.Queue.items:
+				if track is self.Queue.items[self.pos]:
+					print ">> ",
+				cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track.id,))
+				result = cursor.fetchone()
+				print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
 
 	def play_queue(self):
 		self.pos = 0
 		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos].streamid,self.Queue.items[self.pos].location))
-		self.vlc.play()
+		self.play()
 
 	def play(self):
 		self.vlc.play()
+		self.is_playing = True
+
+	def playing(self):
+		return self.is_playing
 
 	def pause(self):
 		self.vlc.pause()
 
 	def stop(self):
 		self.vlc.stop()
+		self.is_playing = False
 
 	
