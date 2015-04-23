@@ -11,7 +11,7 @@ class Player:
 		self.Queue = Playlist("queue", user)
 		self.Queue.load()
 		self.pos = 0
-		self.is_playing = False
+		self.is_paused = False
 
 	def auto_next_queue(self, arg):
 		self.vlc = vlc.MediaPlayer()
@@ -69,13 +69,14 @@ class Player:
 
 	def play(self):
 		self.vlc.play()
-		self.is_playing = True
+		self.is_paused = False
 
-	def playing(self):
-		return self.is_playing
+	def paused(self):
+		return self.is_paused
 
 	def pause(self):
 		self.vlc.pause()
+		self.is_paused = True
 
 	def stop(self):
 		self.vlc.stop()

@@ -35,7 +35,7 @@ class Hermes:
 		# self.sync("sync")
 
 	def play(self, title):
-		if self.player.playing():
+		if self.player.paused():
 			self.player.play()
 		else:
 			track = self.user.library_get('id', ['streamid', 'location'], 'id', [], str(title), True)
@@ -67,6 +67,9 @@ class Hermes:
 		self.player.stop()
 
 	def add(self, title):
+		track = self.user.library_get('id', ['streamid', 'location'], 'id', [], str(title), True)
+		self.player.add(track[0], track[1].encode("utf-8"), track[2].encode("utf-8"))
+		return
 
 		if self.player.Queue.title == 'stream':
 			self.player.stop()
@@ -143,7 +146,7 @@ class Hermes:
 				self.player.Queue.save()
 		self.player.play_queue()
 
-	def clear_queue(self, title):
+	def clear_queue(self):
 		self.player.clear_queue()
 	def sync(self, title):
 		self.user.sync(self.client)
@@ -242,3 +245,7 @@ class Hermes:
 		recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
 
 		return Tra_res
+
+	def quit(self):
+		self.user.cursor.execute('''DROP TABLE IF EXISTS stream''')
+		self.user.db.close()
