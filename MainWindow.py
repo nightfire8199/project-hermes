@@ -16,7 +16,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.createActions()
         self.connectActions()
         self.addMenu()
-        self.hermes = Hermes()
+        self.hermes = Hermes(self.trackSlider)
 
     def createActions(self):
         self.quitAction = QtGui.QAction('&Quit', self)        
@@ -34,6 +34,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchResults.itemDoubleClicked.connect(self.playSelected)
         self.searchResults.itemDoubleClicked.connect(self.addToQueueAndPlay)
         self.addButton.clicked.connect(self.addToQueue)
+	self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
 
     def addMenu(self):
@@ -85,6 +86,10 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
     def clearQueue(self):
         self.hermes.clear_queue()
         self.nowPlaying.clear()
+
+    def setTime(self):
+	position = float(self.trackSlider.sliderPosition())/float(self.trackSlider.maximum())
+	self.hermes.player.vlc.set_position(position)
 
 
 

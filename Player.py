@@ -4,24 +4,30 @@ import vlc
 
 class Player:
 
-	def __init__(self, user):
+	def __init__(self, user, QT_trackBar):
 		self.vlc = vlc.MediaPlayer()
 		self.events = self.vlc.event_manager()
 		self.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.auto_next_queue)
+		self.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.change_time)
 		self.Queue = Playlist("queue", user)
 		self.Queue.load()
 		self.pos = 0
+		self.QT_track_bar = QT_trackBar
 		self.is_paused = False
 
 	def auto_next_queue(self, arg):
 		self.vlc = vlc.MediaPlayer()
 		self.events = self.vlc.event_manager()
 		self.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.auto_next_queue)
+		self.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.change_time)
 		self.play_next()
 
 	def play_track(self,track):
 		self.vlc.set_mrl(track)
 		self.play()
+
+	def change_time(self,arg):
+		self.QT_track_bar.setValue(int(self.vlc.get_position() * self.QT_track_bar.maximum()))
 
 	def play_next(self):
 		if self.pos < len(self.Queue.items):
