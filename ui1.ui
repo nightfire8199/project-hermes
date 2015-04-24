@@ -648,19 +648,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      <string>Artists</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="syncButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>0</y>
-      <width>80</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>SYNC</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="playpauseButton">
     <property name="geometry">
      <rect>

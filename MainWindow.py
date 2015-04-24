@@ -28,6 +28,9 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.quitAction = QtGui.QAction('&Quit', self)        
         self.quitAction.setShortcut('Ctrl+Q')
         self.quitAction.setStatusTip('Exit application')
+        self.syncAction = QtGui.QAction('&Sync', self)        
+        self.syncAction.setShortcut('Ctrl+S')
+        self.syncAction.setStatusTip('Sync Library')
 
         self.statusBar()
 
@@ -42,7 +45,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
      	self.searchResults_Alb.itemDoubleClicked.connect(self.viewAlbum)
 	self.searchResults_Art.itemDoubleClicked.connect(self.viewArtist)
         self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
-	self.syncButton.clicked.connect(self.sync)
+	self.syncAction.triggered.connect(self.sync)
         self.addButton.clicked.connect(self.addToQueue)
 	self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
@@ -51,6 +54,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(self.quitAction)
+        toolMenu = menubar.addMenu('&Tools')
+        toolMenu.addAction(self.syncAction)
 
     def quitApp(self):
         self.hermes.quit()
