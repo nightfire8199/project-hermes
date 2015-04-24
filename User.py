@@ -121,8 +121,10 @@ class User:
 	# def remove_playlist(self, name):
 	# 	self.playlists.append(Playlist(name, self))
 
+
 	def sync(self, client):
-		self.cursor.execute('''DROP TABLE IF EXISTS tracks''')
+		#self.cursor.execute('''DROP TABLE IF EXISTS tracks''')
+
 		L_list = []
 		for path in self.watched:
 			filelist = []
@@ -142,21 +144,23 @@ class User:
 			Fav_Size = len(S_list)
 			S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
 
-		# cursor.execute('''DROP TABLE tracks''')
 		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER)
+		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum INTEGER)
 		''')
-		iden = 0
+		self.cursor.execute('''SELECT count(*) FROM tracks''')
+		iden = self.cursor.fetchone()[0]
 		for track in G_list:
 			self.cursor.execute('''
 				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
-				''', (iden, track['title'], track['album'], track['artist'], 'G', track['id'], track['trackNumber']))
+				''', (iden, track['title'], track['album'], track['artist'], 'G', 'G_' + str(track['id']), track['trackNumber']))
+			self.db.commit()
 			iden+=1
 
 		for track in S_list:
 			self.cursor.execute('''
 				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
-				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', track.id, 0))
+				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', 'S_' + str(track.id), 0))
+			self.db.commit()
 			iden+=1
 
 		for track in L_list:
@@ -165,7 +169,8 @@ class User:
 			if len(tag.getArtist()) and len(tag.getAlbum()) and len(tag.getTitle()) > 0:
 				self.cursor.execute('''
 					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
-					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', track, tag.track_num[0]))
+					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', 'L_' + str(track), tag.track_num[0]))
+				self.db.commit()
 				iden+=1
 			else:
 				print "Could not resolve track metadata for: " + track
@@ -195,18 +200,20 @@ class User:
 						continue
 					self.cursor.execute('''
 						INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
-						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', play.id, 0))
+						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0))
 					self.db.commit()
-					player.add(iden,int(play.id),'S')
+					player.add(iden,'S_' + str(play.id),'S')
+
 					duplifier.append(play.id)
 					duplifier.append(track['origin']['id'])
 					iden +=1	
 			else:
 				self.cursor.execute('''
 					INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
-					''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', track['origin']['id'], 0))
+					''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', 'S_'+ str(track['origin']['id']), 0))
 				self.db.commit()				
-				player.add(iden,int(track['origin']['id']),'S')
+				player.add(iden,'S_' + str(track['origin']['id']),'S')
+
 				duplifier.append(track['origin']['id'])
 				iden+=1
 			if iden == 50:
@@ -236,6 +243,22 @@ class User:
 				query += item + ', '
 			query = query[:len(query)-2]
 		self.cursor.execute(query, (USI+'%', '% '+USI+'%',))
+		if single == False:
+			return self.cursor.fetchall()
+		else:
+			return self.cursor.fetchone()
+
+	def library_get_exact(self, distinct, get_others, where_like, ordered_return, USI, single = False):
+		query = 'SELECT DISTINCT(' + distinct + ')'
+		for item in get_others:
+			query += ', ' + item
+		query += ' FROM tracks WHERE ' + where_like + ' = ?'
+		if len(ordered_return) > 0:		
+			query += ' ORDER BY '
+			for item in ordered_return:
+				query += item + ', '
+			query = query[:len(query)-2]
+		self.cursor.execute(query, (USI,))
 		if single == False:
 			return self.cursor.fetchall()
 		else:

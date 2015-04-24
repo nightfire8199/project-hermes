@@ -2,17 +2,16 @@ from User import *
 from ClientHandler import *
 from Player import *
 from IO import *
-
 from PyQt4 import QtCore, QtGui, uic
 
 class Hermes:
 
-	def __init__(self):
+	def __init__(self, QT_trackBar,QT_nowPlaying):
 		Print_Banner()
 
 		self.user = User()
 		self.client = Client_Handler(self.user)
-		self.player = Player(self.user)
+		self.player = Player(self.user, QT_trackBar,QT_nowPlaying)
 		self.player.client = self.client
 
 		print ""
@@ -130,9 +129,9 @@ class Hermes:
 
 	def pause(self):
 		self.player.pause()
-	def next(self, title):
+	def next(self):
 		self.player.play_next()
-	def prev(self, title):
+	def prev(self):
 		self.player.play_prev()
 	def start(self, title):
 		if title == 'stream':
@@ -164,19 +163,27 @@ class Hermes:
 	def view(self, title,recent_Art, recent_Alb, recent_Tra):
 
 		if title[:2] == 'AR'and int(title[2:]) <= len(recent_Art):
-			all_rows_TR = self.user.library_get('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], recent_Art[int(title[2:])])
-			all_rows_AL = self.user.library_get('album', [], 'artist', ['album'], recent_Art[int(title[2:])])
+			all_rows_TR = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], recent_Art[int(title[2:])])
+			all_rows_AL = self.user.library_get_exact('album', ['artist'], 'artist', ['album'], recent_Art[int(title[2:])])
 			recent_Art, recent_Alb, recent_Tra = Print_Results([], all_rows_AL, all_rows_TR)
 		elif title[:2] == 'AL' and int(title[2:]) <= len(recent_Alb):
-			all_rows = self.user.library_get('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], recent_Alb[int(title[2:])])
+			all_rows = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], recent_Alb[int(title[2:])])
 			recent_Art, recent_Alb, recent_Tra = Print_Results([], [], all_rows)
 		else:
 			print "Cannot find: " + title
 
 		return [recent_Art, recent_Alb, recent_Tra]
-	
 
-	
+	def view_Al(self, album):
+		all_rows = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], album.album)
+		recent_Art, recent_Alb, recent_Tra = Print_Results([], [], all_rows)
+		return [[], [], all_rows]
+
+	def view_Ar(self,artist):
+		all_rows_TR = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], artist.artist)
+		all_rows_AL = self.user.library_get_exact('album', ['artist'], 'artist', ['album'], artist.artist)
+		recent_Art, recent_Alb, recent_Tra = Print_Results([], all_rows_AL, all_rows_TR)
+		return [[], all_rows_AL, all_rows_TR]
 
 	def intersect(self, res, inp):
 		if(len(res) == 0):
@@ -188,6 +195,12 @@ class Hermes:
 		    		 temp.add(row)
 			res = res.intersection(temp)
 		return res
+
+	def like(self):
+		if self.player.Queue.title == 'stream':
+			self.client.S_client.put('/me/favorites/%d' % int(self.player.Queue.items[self.player.pos].streamid[2:]))
+		else:
+			print "The stream is not curretly playing"
 
 	# while(True):
 	# 	USI = raw_input("$> ")
@@ -236,7 +249,7 @@ class Hermes:
 			all_rows = self.user.library_get('artist', [], 'artist', ['artist'], word)
 			Art_res = intersect(Art_res, all_rows)
 			
-			all_rows = self.user.library_get('album', [], 'album', ['album'], word)
+			all_rows = self.user.library_get('album', ['artist'], 'album', ['album'], word)
 			Alb_res = intersect(Alb_res, all_rows)
 
 			all_rows = self.user.library_get('id', ['artist','album','title','tracknum'], 'title', ['artist','album','tracknum'], word)
@@ -244,7 +257,7 @@ class Hermes:
 
 		recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
 
-		return Tra_res
+		return [Art_res, Alb_res, Tra_res]
 
 	def quit(self):
 		self.user.cursor.execute('''DROP TABLE IF EXISTS stream''')

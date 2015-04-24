@@ -6,10 +6,10 @@ class SongItem(QtGui.QListWidgetItem):
 	def __init__(self, other, parent = None):
 		super(SongItem, self).__init__(parent)
 		self.id = other[0]
-		self.artist = str(other[1])
-		self.album = str(other[2])
-		self.title = str(other[3])
-		self.setText(self.artist+"   -   "+self.album+"   -   "+self.title)
+		self.artist = str(other[1].encode("utf-8"))
+		self.album = str(other[2].encode("utf-8"))
+		self.title = str(other[3].encode("utf-8"))
+		self.setText(self.title+"   -   "+self.album+"   -   "+self.artist)
 
 	@classmethod
 	def copyCtor(this, copy):
@@ -18,8 +18,39 @@ class SongItem(QtGui.QListWidgetItem):
 		newSong.artist = copy.artist
 		newSong.album = copy.album
 		newSong.title = copy.title
-		newSong.setText(newSong.artist+"   -   "+newSong.album+"   -   "+newSong.title)
+		newSong.setText(newSong.title+"   -   "+newSong.album+"   -   "+newSong.artist)
 		return newSong
+
+class ArtistItem(QtGui.QListWidgetItem):
+
+	def __init__(self, other, parent = None):
+		super(ArtistItem, self).__init__(parent)
+		self.artist = str(other[0].encode("utf-8"))
+		self.setText(self.artist)
+
+	@classmethod
+	def copyCtor(this, copy):
+		newArtist = ArtistItem([''])
+		newArtist.artist = copy.artist
+		newArtist.setText(newArtist.artist)
+		return newArtist
+
+class AlbumItem(QtGui.QListWidgetItem):
+
+	def __init__(self, other, parent = None):
+		super(AlbumItem, self).__init__(parent)
+		self.artist = str(other[1].encode("utf-8"))
+		self.album = str(other[0].encode("utf-8"))
+		self.setText(self.album+"   -   "+self.artist)
+
+	@classmethod
+	def copyCtor(this, copy):
+		newAlbum = AlbumItem(['',''])
+		newAlbum.artist = copy.artist
+		newAlbum.album = copy.album
+		self.setText(newAlbum.album+"   -   "+newAlbum.artist)
+		return newAlbum
+
 
 class TableSongItem(QtGui.QTableWidgetItem):
 
