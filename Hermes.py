@@ -129,9 +129,9 @@ class Hermes:
 
 	def pause(self):
 		self.player.pause()
-	def next(self, title):
+	def next(self):
 		self.player.play_next()
-	def prev(self, title):
+	def prev(self):
 		self.player.play_prev()
 	def start(self, title):
 		if title == 'stream':

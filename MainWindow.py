@@ -35,8 +35,10 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.quitAction.triggered.connect(self.quitApp)
         self.searchButton.clicked.connect(self.search)  # Bind the event handlers
         self.searchBox.returnPressed.connect(self.search)
-        self.playButton.clicked.connect(self.playSelected)
-        self.pauseButton.clicked.connect(self.pauseCurrent)
+        self.startButton.clicked.connect(self.playSelected)
+	self.playpauseButton.clicked.connect(self.playpause)
+	self.nextButton.clicked.connect(self.playnext)
+	self.prevButton.clicked.connect(self.playprev)
      	self.searchResults_Alb.itemDoubleClicked.connect(self.viewAlbum)
 	self.searchResults_Art.itemDoubleClicked.connect(self.viewArtist)
         self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
@@ -83,10 +85,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         if len(selected) == 0:
             return
         self.current = selected[0].id
+	self.playpauseButton.setText(QtCore.QString('Pause'))
         self.hermes.play(self.current)
-
-    def pauseCurrent(self):
-        self.hermes.pause()
 
     def addToQueue(self):
         selected = self.searchResults_Tra.selectedItems()
@@ -135,6 +135,20 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	print "Syncing Library"
 	self.hermes.user.sync(self.hermes.client)
 	print "Sync Complete"
+
+    def playpause(self):
+	if self.hermes.player.vlc.is_playing():
+		self.playpauseButton.setText(QtCore.QString('Play'))
+		self.hermes.player.vlc.pause()
+	else:
+		self.playpauseButton.setText(QtCore.QString('Pause'))
+		self.hermes.player.vlc.play()
+
+    def playnext(self):
+	self.hermes.next()
+
+    def playprev(self):
+	self.hermes.prev()
 
 
 # Main script

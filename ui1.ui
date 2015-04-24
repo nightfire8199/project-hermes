@@ -498,30 +498,17 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="playButton">
+   <widget class="QPushButton" name="startButton">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>530</y>
+      <x>40</x>
+      <y>490</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Play</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pauseButton">
-    <property name="geometry">
-     <rect>
-      <x>400</x>
-      <y>530</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pause</string>
+     <string>Start</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="searchBox">
@@ -590,7 +577,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>560</y>
+      <y>550</y>
       <width>801</width>
       <height>20</height>
      </rect>
@@ -672,6 +659,45 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     </property>
     <property name="text">
      <string>SYNC</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="playpauseButton">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>520</y>
+      <width>80</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Play</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="nextButton">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>520</y>
+      <width>80</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="prevButton">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>520</y>
+      <width>80</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;&lt;</string>
     </property>
    </widget>
   </widget>
