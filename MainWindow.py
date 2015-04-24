@@ -22,6 +22,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	for track in currQueue:
 		newItem = SongItem(track)
         	self.nowPlaying.addItem(newItem)
+
+	self.likeButton.hide()
 		
 
     def createActions(self):
@@ -49,6 +51,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.addButton.clicked.connect(self.addToQueue)
 	self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
+	self.streamButton.clicked.connect(self.getStream)
+	self.likeButton.clicked.connect(self.like)
 
     def addMenu(self):
         menubar = self.menuBar()
@@ -154,6 +158,18 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def playprev(self):
 	self.hermes.prev()
+
+    def getStream(self):
+	self.clearQueue()
+	self.hermes.start('stream')
+	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
+	for track in currQueue:
+		newItem = SongItem(track)
+        	self.nowPlaying.addItem(newItem)
+	self.likeButton.show()
+
+    def like(self):
+	self.hermes.like()
 
 
 # Main script

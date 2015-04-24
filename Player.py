@@ -91,6 +91,7 @@ class Player:
 
 	def play_queue(self):
 		self.pos = 0
+		self.QT_queue.setCurrentRow(self.pos-1)
 		self.vlc.set_mrl(self.client.get_stream_URL(self.Queue.items[self.pos].streamid,self.Queue.items[self.pos].location))
 		self.play()
 

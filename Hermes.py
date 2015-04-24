@@ -196,6 +196,12 @@ class Hermes:
 			res = res.intersection(temp)
 		return res
 
+	def like(self):
+		if self.player.Queue.title == 'stream':
+			self.client.S_client.put('/me/favorites/%d' % int(self.player.Queue.items[self.player.pos].streamid[2:]))
+		else:
+			print "The stream is not curretly playing"
+
 	# while(True):
 	# 	USI = raw_input("$> ")
 
