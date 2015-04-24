@@ -40,6 +40,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
      	self.searchResults_Alb.itemDoubleClicked.connect(self.viewAlbum)
 	self.searchResults_Art.itemDoubleClicked.connect(self.viewArtist)
         self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
+	self.syncButton.clicked.connect(self.sync)
         self.addButton.clicked.connect(self.addToQueue)
 	self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
@@ -129,6 +130,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
             self.searchResults_Tra.addItem(SongItem(song))
 	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist]))
 	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
+
+    def sync(self):
+	print "Syncing Library"
+	self.hermes.user.sync(self.hermes.client)
+	print "Sync Complete"
 
 
 # Main script

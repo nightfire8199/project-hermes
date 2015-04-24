@@ -550,9 +550,9 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
    <widget class="QPushButton" name="addButton">
     <property name="geometry">
      <rect>
-      <x>690</x>
+      <x>680</x>
       <y>490</y>
-      <width>91</width>
+      <width>101</width>
       <height>23</height>
      </rect>
     </property>
@@ -659,6 +659,19 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     </property>
     <property name="text">
      <string>Artists</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="syncButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>80</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SYNC</string>
     </property>
    </widget>
   </widget>

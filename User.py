@@ -145,7 +145,7 @@ class User:
 			S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
 
 		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum 
+		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum INTEGER)
 		''')
 		self.cursor.execute('''SELECT count(*) FROM tracks''')
 		iden = self.cursor.fetchone()[0]
