@@ -472,62 +472,31 @@ QCheckBox::indicator:checked
 QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 {
     border: 1px solid #444;
+}
+
+#playpauseButton
+{
+	font-size: 28px;
+	text-align: center;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QSlider" name="trackSlider">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>550</y>
-      <width>801</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>100000</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
    <widget class="QPushButton" name="playpauseButton">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>20</x>
       <y>520</y>
-      <width>80</width>
-      <height>23</height>
+      <width>61</width>
+      <height>51</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Play</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="nextButton">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>520</y>
-      <width>80</width>
-      <height>23</height>
-     </rect>
+    <property name="font">
+     <font>
+      <pointsize>-1</pointsize>
+     </font>
     </property>
     <property name="text">
-     <string>&gt;&gt;</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="prevButton">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>520</y>
-      <width>80</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;&lt;</string>
+     <string>▶</string>
     </property>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
@@ -540,7 +509,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -549,14 +518,14 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      <widget class="QPushButton" name="clearQueueButton">
       <property name="geometry">
        <rect>
-        <x>640</x>
+        <x>720</x>
         <y>450</y>
         <width>91</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>Clear Queue</string>
+       <string>Clear</string>
       </property>
      </widget>
      <widget class="QListWidget" name="nowPlaying">
@@ -567,19 +536,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
         <width>801</width>
         <height>441</height>
        </rect>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="startButton">
-      <property name="geometry">
-       <rect>
-        <x>740</x>
-        <y>450</y>
-        <width>75</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Start</string>
       </property>
      </widget>
      <widget class="QPushButton" name="streamButton">
@@ -723,6 +679,63 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      </widget>
     </widget>
    </widget>
+   <widget class="QLabel" name="trackInfo">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>520</y>
+      <width>701</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>540</y>
+      <width>711</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="prevButton">
+       <property name="text">
+        <string>&lt;&lt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="trackSlider">
+       <property name="maximum">
+        <number>100000</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="nextButton">
+       <property name="text">
+        <string>&gt;&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <zorder>trackSlider</zorder>
+   <zorder>playpauseButton</zorder>
+   <zorder>nextButton</zorder>
+   <zorder>prevButton</zorder>
+   <zorder>tabWidget</zorder>
+   <zorder>listView</zorder>
+   <zorder>frame</zorder>
+   <zorder>trackInfo</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

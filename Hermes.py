@@ -36,6 +36,9 @@ class Hermes:
 	def play(self, title):
 		if self.player.paused():
 			self.player.play()
+		elif self.player.Queue.title == 'stream':
+			track = self.user.stream_get('id', ['streamid', 'location'], 'id', [], str(title), True)
+			self.player.play_track(self.client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
 		else:
 			track = self.user.library_get('id', ['streamid', 'location'], 'id', [], str(title), True)
 			self.player.play_track(self.client.get_stream_URL(track[1].encode("utf-8"), track[2].encode("utf-8")))
@@ -143,7 +146,7 @@ class Hermes:
 				self.player.Queue = self.user.get_playlist(title)
 				self.player.Queue.title = "queue"
 				self.player.Queue.save()
-		self.player.play_queue()
+		#self.player.play_queue()
 
 	def clear_queue(self):
 		self.player.clear_queue()

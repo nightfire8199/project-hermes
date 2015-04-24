@@ -1,4 +1,5 @@
-# Temperature-conversion program using PyQt
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 from PyQt4 import QtCore, QtGui, uic
@@ -24,6 +25,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         	self.nowPlaying.addItem(newItem)
 
 	self.likeButton.hide()
+
+	self.nowPlaying.setCurrentRow(0)
 		
 
     def createActions(self):
@@ -40,13 +43,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.quitAction.triggered.connect(self.quitApp)
         self.searchButton.clicked.connect(self.search)  # Bind the event handlers
         self.searchBox.returnPressed.connect(self.search)
-        self.startButton.clicked.connect(self.playSelected)
 	self.playpauseButton.clicked.connect(self.playpause)
 	self.nextButton.clicked.connect(self.playnext)
 	self.prevButton.clicked.connect(self.playprev)
      	self.searchResults_Alb.itemDoubleClicked.connect(self.viewAlbum)
 	self.searchResults_Art.itemDoubleClicked.connect(self.viewArtist)
         self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
+	self.nowPlaying.currentRowChanged.connect(self.playSelected)
 	self.syncAction.triggered.connect(self.sync)
         self.addButton.clicked.connect(self.addToQueue)
 	self.trackSlider.sliderReleased.connect(self.setTime)
@@ -81,34 +84,27 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def addToQueueAndPlay(self):
         newItem = self.addToQueue()
-        print "selecting new item"
-        self.nowPlaying.setItemSelected(newItem, True)
-        print "playing selected"
-        self.playSelected()
-        print "now playing"
-
+        self.nowPlaying.setCurrentRow(self.nowPlaying.count()-1)
 
     def playSelected(self):
-	print self.nowPlaying.currentRow()
-        selected = self.nowPlaying.selectedItems()
-        if len(selected) == 0:
-            return
-        self.current = selected[0].id
-	self.playpauseButton.setText(QtCore.QString('Pause'))
-        self.hermes.play(self.current)
+	if len(self.hermes.player.Queue.items) > 0:
+		selected = self.nowPlaying.currentItem()
+		self.hermes.play(selected.id)
+		self.playpause() 
 
     def addToQueue(self):
-        selected = self.searchResults_Tra.selectedItems()
-        if len(selected) == 0:
-            return
-        toAdd = selected[0]
-        self.hermes.add(toAdd.id)
-        newItem = SongItem.copyCtor(toAdd)
+        selected = self.searchResults_Tra.currentItem()
+        self.hermes.add(selected.id)
+        newItem = SongItem.copyCtor(selected)
         self.nowPlaying.addItem(newItem)
         return newItem
 
     def clearQueue(self):
-        self.hermes.clear_queue()
+	self.hermes.player.vlc.stop()
+	self.likeButton.hide()
+	self.trackInfo.setText(QtCore.QString.fromUtf8(''))
+	self.trackSlider.setValue(0)
+        self.hermes.player.clear_queue()
         self.nowPlaying.clear()
 
     def setTime(self):
@@ -146,18 +142,31 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	print "Sync Complete"
 
     def playpause(self):
-	if self.hermes.player.vlc.is_playing():
-		self.playpauseButton.setText(QtCore.QString('Play'))
-		self.hermes.player.vlc.pause()
+	if len(self.hermes.player.Queue.items) > 0:
+		self.hermes.player.pos = self.nowPlaying.currentRow()
+		self.trackInfo.setText(self.nowPlaying.currentItem().text())
+		if self.hermes.player.vlc.is_playing():
+			self.playpauseButton.setText(QtCore.QString.fromUtf8('▶'))
+			self.hermes.player.vlc.pause()
+		else:
+			self.playpauseButton.setText(QtCore.QString.fromUtf8('▮▮'))
+			if self.hermes.player.vlc.get_media() == None:
+				self.hermes.player.play_queue(self.nowPlaying.currentRow())
+			else:
+				self.hermes.player.vlc.play()
 	else:
-		self.playpauseButton.setText(QtCore.QString('Pause'))
-		self.hermes.player.vlc.play()
+		self.playpauseButton.setText(QtCore.QString.fromUtf8('▶'))
+		self.trackInfo.setText(QtCore.QString.fromUtf8(''))
 
     def playnext(self):
-	self.hermes.next()
+	if self.hermes.player.pos + 1 < self.nowPlaying.count():
+		self.nowPlaying.setCurrentRow(self.hermes.player.pos + 1)
+		self.trackInfo.setText(self.nowPlaying.currentItem().text())
 
     def playprev(self):
-	self.hermes.prev()
+	if self.hermes.player.pos - 1 >= 0:
+		self.nowPlaying.setCurrentRow(self.hermes.player.pos - 1)
+		self.trackInfo.setText(self.nowPlaying.currentItem().text())
 
     def getStream(self):
 	self.clearQueue()
@@ -167,6 +176,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		newItem = SongItem(track)
         	self.nowPlaying.addItem(newItem)
 	self.likeButton.show()
+	self.nowPlaying.setCurrentRow(0)
 
     def like(self):
 	self.hermes.like()
