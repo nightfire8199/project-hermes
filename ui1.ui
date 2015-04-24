@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>823</width>
-    <height>624</height>
+    <width>827</width>
+    <height>659</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -472,31 +472,23 @@ QCheckBox::indicator:checked
 QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 {
     border: 1px solid #444;
-}
-
-#playpauseButton
-{
-	font-size: 28px;
-	text-align: center;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="playpauseButton">
+   <widget class="QSlider" name="trackSlider">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>520</y>
-      <width>61</width>
-      <height>51</height>
+      <x>130</x>
+      <y>580</y>
+      <width>611</width>
+      <height>20</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>-1</pointsize>
-     </font>
+    <property name="maximum">
+     <number>100000</number>
     </property>
-    <property name="text">
-     <string>▶</string>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
@@ -505,11 +497,11 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
       <x>0</x>
       <y>0</y>
       <width>821</width>
-      <height>511</height>
+      <height>521</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -519,10 +511,15 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
       <property name="geometry">
        <rect>
         <x>720</x>
-        <y>450</y>
+        <y>460</y>
         <width>91</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>Clear</string>
@@ -532,7 +529,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
+        <y>10</y>
         <width>801</width>
         <height>441</height>
        </rect>
@@ -542,10 +539,15 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>450</y>
+        <y>460</y>
         <width>80</width>
-        <height>23</height>
+        <height>21</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>Stream</string>
@@ -555,9 +557,9 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
       <property name="geometry">
        <rect>
         <x>100</x>
-        <y>450</y>
+        <y>460</y>
         <width>80</width>
-        <height>23</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
@@ -648,20 +650,26 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
        </rect>
       </property>
       <property name="text">
-       <string>Add to Queue</string>
+       <string>Add</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="searchBox">
       <property name="geometry">
        <rect>
-        <x>360</x>
+        <x>410</x>
         <y>10</y>
-        <width>361</width>
+        <width>311</width>
         <height>20</height>
        </rect>
       </property>
+      <property name="inputMask">
+       <string/>
+      </property>
       <property name="text">
        <string/>
+      </property>
+      <property name="placeholderText">
+       <string>Search</string>
       </property>
      </widget>
      <widget class="QPushButton" name="searchButton">
@@ -679,70 +687,72 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      </widget>
     </widget>
    </widget>
-   <widget class="QLabel" name="trackInfo">
+   <widget class="QToolButton" name="playpauseButton">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>520</y>
-      <width>701</width>
-      <height>16</height>
+      <x>10</x>
+      <y>560</y>
+      <width>51</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
-     <string/>
+     <string>play</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QToolButton" name="nextButton">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>540</y>
-      <width>711</width>
-      <height>25</height>
+      <x>760</x>
+      <y>560</y>
+      <width>51</width>
+      <height>51</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="prevButton">
-       <property name="text">
-        <string>&lt;&lt;</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSlider" name="trackSlider">
-       <property name="maximum">
-        <number>100000</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="nextButton">
-       <property name="text">
-        <string>&gt;&gt;</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <property name="text">
+     <string>next</string>
+    </property>
    </widget>
-   <zorder>trackSlider</zorder>
-   <zorder>playpauseButton</zorder>
-   <zorder>nextButton</zorder>
-   <zorder>prevButton</zorder>
-   <zorder>tabWidget</zorder>
-   <zorder>listView</zorder>
-   <zorder>frame</zorder>
-   <zorder>trackInfo</zorder>
+   <widget class="QToolButton" name="prevButton">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>560</y>
+      <width>51</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>prev</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="playingLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>530</y>
+      <width>801</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>nowplaying</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>823</width>
+     <width>827</width>
      <height>20</height>
     </rect>
    </property>

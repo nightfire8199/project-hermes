@@ -3,6 +3,7 @@
 
 import sys
 from PyQt4 import QtCore, QtGui, uic
+from PyQt4.QtGui import *
 from Hermes import *
 from SongItem import *
 
@@ -13,6 +14,15 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
+
+        self.playpauseButton.setText('')
+        self.playpauseButton.setStyleSheet("background-image: url(assets/play_fill_white.png); background-color: rgba(0,0,0,0)")
+        self.prevButton.setText('')
+        self.prevButton.setStyleSheet("background-image: url(assets/prev_white.png); background-color: rgba(0,0,0,0)")
+        self.nextButton.setText('')
+        self.nextButton.setStyleSheet("background-image: url(assets/next_white.png); background-color: rgba(0,0,0,0)")
+        self.playingLabel.setText('')
+        self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
 
         self.createActions()
         self.connectActions()
@@ -25,9 +35,6 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         	self.nowPlaying.addItem(newItem)
 
 	self.likeButton.hide()
-
-	self.nowPlaying.setCurrentRow(0)
-		
 
     def createActions(self):
         self.quitAction = QtGui.QAction('&Quit', self)        
@@ -90,22 +97,25 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	if len(self.hermes.player.Queue.items) > 0:
 		selected = self.nowPlaying.currentItem()
 		self.hermes.play(selected.id)
+		self.playingLabel.setText("   "+selected.title+" by "+selected.artist+" on "+selected.album)
 		self.playpause() 
 
     def addToQueue(self):
         selected = self.searchResults_Tra.currentItem()
         self.hermes.add(selected.id)
         newItem = SongItem.copyCtor(selected)
+
         self.nowPlaying.addItem(newItem)
         return newItem
 
     def clearQueue(self):
 	self.hermes.player.vlc.stop()
 	self.likeButton.hide()
-	self.trackInfo.setText(QtCore.QString.fromUtf8(''))
+	self.playingLabel.setText('')
 	self.trackSlider.setValue(0)
         self.hermes.player.clear_queue()
         self.nowPlaying.clear()
+	self.playpause()
 
     def setTime(self):
 	position = float(self.trackSlider.sliderPosition())/float(self.trackSlider.maximum())
@@ -144,29 +154,26 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
     def playpause(self):
 	if len(self.hermes.player.Queue.items) > 0:
 		self.hermes.player.pos = self.nowPlaying.currentRow()
-		self.trackInfo.setText(self.nowPlaying.currentItem().text())
 		if self.hermes.player.vlc.is_playing():
-			self.playpauseButton.setText(QtCore.QString.fromUtf8('▶'))
+			self.playpauseButton.setStyleSheet("background-image: url(assets/play_fill_white.png); background-color: rgba(0,0,0,0)")
 			self.hermes.player.vlc.pause()
 		else:
-			self.playpauseButton.setText(QtCore.QString.fromUtf8('▮▮'))
+			self.playpauseButton.setStyleSheet("background-image: url(assets/pause_nofill_white.png); background-color: rgba(0,0,0,0)")
 			if self.hermes.player.vlc.get_media() == None:
 				self.hermes.player.play_queue(self.nowPlaying.currentRow())
 			else:
 				self.hermes.player.vlc.play()
 	else:
-		self.playpauseButton.setText(QtCore.QString.fromUtf8('▶'))
-		self.trackInfo.setText(QtCore.QString.fromUtf8(''))
+		self.playpauseButton.setStyleSheet("background-image: url(assets/play_fill_white.png); background-color: rgba(0,0,0,0)")
+		self.playingLabel.setText('')
 
     def playnext(self):
 	if self.hermes.player.pos + 1 < self.nowPlaying.count():
 		self.nowPlaying.setCurrentRow(self.hermes.player.pos + 1)
-		self.trackInfo.setText(self.nowPlaying.currentItem().text())
 
     def playprev(self):
 	if self.hermes.player.pos - 1 >= 0:
 		self.nowPlaying.setCurrentRow(self.hermes.player.pos - 1)
-		self.trackInfo.setText(self.nowPlaying.currentItem().text())
 
     def getStream(self):
 	self.clearQueue()
@@ -180,6 +187,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def like(self):
 	self.hermes.like()
+
 
 
 # Main script
