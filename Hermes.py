@@ -163,11 +163,11 @@ class Hermes:
 	def view(self, title,recent_Art, recent_Alb, recent_Tra):
 
 		if title[:2] == 'AR'and int(title[2:]) <= len(recent_Art):
-			all_rows_TR = self.user.library_get('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], recent_Art[int(title[2:])])
-			all_rows_AL = self.user.library_get('album', ['artist'], 'artist', ['album'], recent_Art[int(title[2:])])
+			all_rows_TR = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], recent_Art[int(title[2:])])
+			all_rows_AL = self.user.library_get_exact('album', ['artist'], 'artist', ['album'], recent_Art[int(title[2:])])
 			recent_Art, recent_Alb, recent_Tra = Print_Results([], all_rows_AL, all_rows_TR)
 		elif title[:2] == 'AL' and int(title[2:]) <= len(recent_Alb):
-			all_rows = self.user.library_get('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], recent_Alb[int(title[2:])])
+			all_rows = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], recent_Alb[int(title[2:])])
 			recent_Art, recent_Alb, recent_Tra = Print_Results([], [], all_rows)
 		else:
 			print "Cannot find: " + title
@@ -175,13 +175,13 @@ class Hermes:
 		return [recent_Art, recent_Alb, recent_Tra]
 
 	def view_Al(self, album):
-		all_rows = self.user.library_get('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], album.album)
+		all_rows = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'album', ['artist','album','tracknum'], album.album)
 		recent_Art, recent_Alb, recent_Tra = Print_Results([], [], all_rows)
 		return [[], [], all_rows]
 
 	def view_Ar(self,artist):
-		all_rows_TR = self.user.library_get('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], artist.artist)
-		all_rows_AL = self.user.library_get('album', ['artist'], 'artist', ['album'], artist.artist)
+		all_rows_TR = self.user.library_get_exact('id', ['artist','album','title','tracknum'], 'artist', ['artist','album','tracknum'], artist.artist)
+		all_rows_AL = self.user.library_get_exact('album', ['artist'], 'artist', ['album'], artist.artist)
 		recent_Art, recent_Alb, recent_Tra = Print_Results([], all_rows_AL, all_rows_TR)
 		return [[], all_rows_AL, all_rows_TR]
 

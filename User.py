@@ -248,6 +248,22 @@ class User:
 		else:
 			return self.cursor.fetchone()
 
+	def library_get_exact(self, distinct, get_others, where_like, ordered_return, USI, single = False):
+		query = 'SELECT DISTINCT(' + distinct + ')'
+		for item in get_others:
+			query += ', ' + item
+		query += ' FROM tracks WHERE ' + where_like + ' = ?'
+		if len(ordered_return) > 0:		
+			query += ' ORDER BY '
+			for item in ordered_return:
+				query += item + ', '
+			query = query[:len(query)-2]
+		self.cursor.execute(query, (USI,))
+		if single == False:
+			return self.cursor.fetchall()
+		else:
+			return self.cursor.fetchone()
+
 	def stream_get(self, distinct, get_others, where_like, ordered_return, USI, single = False):
 		query = 'SELECT DISTINCT(' + distinct + ')'
 		for item in get_others:
