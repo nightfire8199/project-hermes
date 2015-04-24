@@ -37,7 +37,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchBox.returnPressed.connect(self.search)
         self.playButton.clicked.connect(self.playSelected)
         self.pauseButton.clicked.connect(self.pauseCurrent)
-        self.searchResults_Tra.itemDoubleClicked.connect(self.playSelected)
+     	self.searchResults_Alb.itemDoubleClicked.connect(self.viewAlbum)
+	self.searchResults_Art.itemDoubleClicked.connect(self.viewArtist)
         self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
         self.addButton.clicked.connect(self.addToQueue)
 	self.trackSlider.sliderReleased.connect(self.setTime)
@@ -57,6 +58,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         [artists,albums,tracks] = self.hermes.search(searchText, self)
 
         self.searchResults_Tra.clear()
+ 	self.searchResults_Alb.clear()
+	self.searchResults_Art.clear()
         for song in tracks:
             self.searchResults_Tra.addItem(SongItem(song))
 	for album in albums:
@@ -102,6 +105,30 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	position = float(self.trackSlider.sliderPosition())/float(self.trackSlider.maximum())
 	self.hermes.player.vlc.set_position(position)
 
+    def viewArtist(self):
+	selected = self.searchResults_Art.selectedItems()
+	[artists,albums,tracks] = self.hermes.view_Ar(selected[0])
+
+        self.searchResults_Tra.clear()
+ 	self.searchResults_Alb.clear()
+	self.searchResults_Art.clear()
+        for song in tracks:
+            self.searchResults_Tra.addItem(SongItem(song))
+	for album in albums:
+	    self.searchResults_Alb.addItem(AlbumItem(album))
+	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
+
+    def viewAlbum(self):
+	selected = self.searchResults_Alb.selectedItems()
+	[artists,albums,tracks] = self.hermes.view_Al(selected[0])
+
+        self.searchResults_Tra.clear()
+ 	self.searchResults_Alb.clear()
+	self.searchResults_Art.clear()
+        for song in tracks:
+            self.searchResults_Tra.addItem(SongItem(song))
+	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist]))
+	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
 
 
 # Main script
