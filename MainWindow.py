@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import urllib
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import *
 from Hermes import *
@@ -24,15 +25,17 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
 
+	#self.artView.hide()
+
         self.createActions()
         self.connectActions()
         self.addMenu()
         self.hermes = Hermes(self.trackSlider,self.nowPlaying)
 
-	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
-	for track in currQueue:
-		newItem = SongItem(track)
-        	self.nowPlaying.addItem(newItem)
+	#currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
+	#for track in currQueue:
+	#	newItem = SongItem(track)
+        #	self.nowPlaying.addItem(newItem)
 
 	self.likeButton.hide()
 
@@ -99,6 +102,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		self.hermes.play(selected.id)
 		self.playingLabel.setText("   "+selected.title+" by "+selected.artist+" on "+selected.album)
 		self.playpause() 
+		updateArt(selected.id)
 
     def addToQueue(self):
         selected = self.searchResults_Tra.currentItem()
@@ -187,6 +191,16 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def like(self):
 	self.hermes.like()
+
+    def updateArt(self, sid):
+	res = self.user.library_get('artUrl', [], 'id', ['artist'], word, True)
+	
+	data = urllib.urlopen(res[0]).read()
+	pixmap = QtGui.QPixmap()
+	pixmap.loadFromData(data)
+
+	self.artView.setPixmap(pixmap)
+	
 
 
 

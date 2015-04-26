@@ -200,7 +200,7 @@ class User:
 						continue
 					self.cursor.execute('''
 						INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
-						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0))
+						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0) )
 					self.db.commit()
 					player.add(iden,'S_' + str(play.id),'S')
 

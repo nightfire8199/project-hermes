@@ -265,3 +265,4 @@ class Hermes:
 	def quit(self):
 		self.user.cursor.execute('''DROP TABLE IF EXISTS stream''')
 		self.user.db.close()
+		
