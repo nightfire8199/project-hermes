@@ -17,50 +17,50 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.setWindowTitle('Project Hermes')
 
         self.playpauseButton.setText('')
-        self.playpauseButton.setStyleSheet("background-image: url(assets/play_fill_white.png); background-color: rgba(0,0,0,0)")
+        self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.prevButton.setText('')
-        self.prevButton.setStyleSheet("background-image: url(assets/prev_white.png); background-color: rgba(0,0,0,0)")
+        self.prevButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.nextButton.setText('')
-        self.nextButton.setStyleSheet("background-image: url(assets/next_white.png); background-color: rgba(0,0,0,0)")
+        self.nextButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
 
-        horizSplitter = QSplitter(self)
-        horizSplitter.setOrientation(2) #horizontal
-        self.setCentralWidget(horizSplitter)
+      #  horizSplitter = QSplitter(self)
+       # horizSplitter.setOrientation(2) #horizontal
+        #self.setCentralWidget(horizSplitter)
 
-        centralWidget = QWidget()
-        centralLayout = QVBoxLayout()
-        centralWidget.setLayout(centralLayout)
-        horizSplitter.addWidget(centralWidget)
+        #centralWidget = QWidget()
+        #centralLayout = QVBoxLayout()
+        #centralWidget.setLayout(centralLayout)
+        #horizSplitter.addWidget(centralWidget)
 
-        horizSplitter.addWidget(self.groupBox)
-        self.groupBox.setFixedHeight(95)
+        #horizSplitter.addWidget(self.groupBox)
+        #self.groupBox.setFixedHeight(95)
 
-        vertSplitter = QSplitter(centralWidget)
-        vertSplitter.setOrientation(1) #vertical
-        centralLayout.addWidget(vertSplitter)
+        #vertSplitter = QSplitter(centralWidget)
+        #vertSplitter.setOrientation(1) #vertical
+        #centralLayout.addWidget(vertSplitter)
 
-        buttonPanel = QWidget()
-        buttonPanel.setMinimumWidth(150)
-        buttonPanelLayout = QVBoxLayout()
-        buttonPanel.setLayout(buttonPanelLayout)
+        #buttonPanel = QWidget()
+        #buttonPanel.setMinimumWidth(150)
+        #buttonPanelLayout = QVBoxLayout()
+        #buttonPanel.setLayout(buttonPanelLayout)
 
-        self.streamB = QPushButton(buttonPanel)
-        self.streamB.setText("Stream")
-        buttonPanelLayout.addWidget(self.streamB)
+        #self.streamB = QPushButton(buttonPanel)
+        #self.streamB.setText("Stream")
+        #buttonPanelLayout.addWidget(self.streamB)
 
-        separator = QLabel()
-        buttonPanelLayout.addWidget(separator)
-        playlistLabel = QLabel()
-        playlistLabel.setText("Playlists")
-        buttonPanelLayout.addWidget(playlistLabel)
+       # separator = QLabel()
+        #buttonPanelLayout.addWidget(separator)
+        #playlistLabel = QLabel()
+        #playlistLabel.setText("Playlists")
+        #buttonPanelLayout.addWidget(playlistLabel)
 
-        self.playlists = QListWidget(buttonPanel)
-        buttonPanelLayout.addWidget(self.playlists)
+        #self.playlists = QListWidget(buttonPanel)
+        #buttonPanelLayout.addWidget(self.playlists)
 
-        vertSplitter.addWidget(buttonPanel)
-        vertSplitter.addWidget(self.tabWidget)
+        #vertSplitter.addWidget(buttonPanel)
+        #vertSplitter.addWidget(self.tabWidget)
 
         self.createActions()
         self.connectActions()
@@ -193,16 +193,19 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	if len(self.hermes.player.Queue.items) > 0:
 		self.hermes.player.pos = self.nowPlaying.currentRow()
 		if self.hermes.player.vlc.is_playing():
-			self.playpauseButton.setStyleSheet("background-image: url(assets/play_fill_white.png); background-color: rgba(0,0,0,0)")
+			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
+			self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 			self.hermes.player.vlc.pause()
 		else:
-			self.playpauseButton.setStyleSheet("background-image: url(assets/pause_nofill_white.png); background-color: rgba(0,0,0,0)")
+			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/pause_nofill_white.png")))
+			self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 			if self.hermes.player.vlc.get_media() == None:
 				self.hermes.player.play_queue(self.nowPlaying.currentRow())
 			else:
 				self.hermes.player.vlc.play()
 	else:
-		self.playpauseButton.setStyleSheet("background-image: url(assets/play_fill_white.png); background-color: rgba(0,0,0,0)")
+		self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
+		self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 		self.playingLabel.setText('')
 
     def playnext(self):
