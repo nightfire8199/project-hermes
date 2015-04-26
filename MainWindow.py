@@ -25,7 +25,42 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
 
-	#self.artView.hide()
+        horizSplitter = QSplitter(self)
+        horizSplitter.setOrientation(2) #horizontal
+        self.setCentralWidget(horizSplitter)
+
+        centralWidget = QWidget()
+        centralLayout = QVBoxLayout()
+        centralWidget.setLayout(centralLayout)
+        horizSplitter.addWidget(centralWidget)
+
+        horizSplitter.addWidget(self.groupBox)
+        self.groupBox.setFixedHeight(95)
+
+        vertSplitter = QSplitter(centralWidget)
+        vertSplitter.setOrientation(1) #vertical
+        centralLayout.addWidget(vertSplitter)
+
+        buttonPanel = QWidget()
+        buttonPanel.setMinimumWidth(150)
+        buttonPanelLayout = QVBoxLayout()
+        buttonPanel.setLayout(buttonPanelLayout)
+
+        self.streamB = QPushButton(buttonPanel)
+        self.streamB.setText("Stream")
+        buttonPanelLayout.addWidget(self.streamB)
+
+        separator = QLabel()
+        buttonPanelLayout.addWidget(separator)
+        playlistLabel = QLabel()
+        playlistLabel.setText("Playlists")
+        buttonPanelLayout.addWidget(playlistLabel)
+
+        self.playlists = QListWidget(buttonPanel)
+        buttonPanelLayout.addWidget(self.playlists)
+
+        vertSplitter.addWidget(buttonPanel)
+        vertSplitter.addWidget(self.tabWidget)
 
         self.createActions()
         self.connectActions()

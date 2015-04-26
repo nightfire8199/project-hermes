@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>827</width>
+    <width>839</width>
     <height>659</height>
    </rect>
   </property>
@@ -475,22 +475,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QSlider" name="trackSlider">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>580</y>
-      <width>611</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>100000</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
@@ -687,64 +671,93 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
      </widget>
     </widget>
    </widget>
-   <widget class="QToolButton" name="playpauseButton">
+   <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>560</y>
-      <width>51</width>
-      <height>51</height>
+      <y>510</y>
+      <width>811</width>
+      <height>101</height>
      </rect>
     </property>
-    <property name="text">
-     <string>play</string>
+    <property name="title">
+     <string>Now Playing</string>
     </property>
-   </widget>
-   <widget class="QToolButton" name="nextButton">
-    <property name="geometry">
-     <rect>
-      <x>760</x>
-      <y>560</y>
-      <width>51</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>next</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="prevButton">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>560</y>
-      <width>51</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>prev</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="playingLabel">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>530</y>
-      <width>801</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>nowplaying</string>
-    </property>
+    <widget class="QToolButton" name="playpauseButton">
+     <property name="geometry">
+      <rect>
+       <x>380</x>
+       <y>20</y>
+       <width>51</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>play</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="prevButton">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>20</y>
+       <width>51</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>prev</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="nextButton">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>20</y>
+       <width>51</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>next</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="playingLabel">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>281</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>nowplaying</string>
+     </property>
+    </widget>
+    <widget class="QSlider" name="trackSlider">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>791</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>100000</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -752,8 +765,8 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>827</width>
-     <height>20</height>
+     <width>839</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
