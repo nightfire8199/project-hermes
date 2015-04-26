@@ -153,14 +153,12 @@ class User:
 			self.cursor.execute('''
 				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
 				''', (iden, track['title'], track['album'], track['artist'], 'G', 'G_' + str(track['id']), track['trackNumber']))
-			self.db.commit()
 			iden+=1
 
 		for track in S_list:
 			self.cursor.execute('''
 				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
 				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', 'S_' + str(track.id), 0))
-			self.db.commit()
 			iden+=1
 
 		for track in L_list:
@@ -170,7 +168,6 @@ class User:
 				self.cursor.execute('''
 					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
 					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', 'L_' + str(track), tag.track_num[0]))
-				self.db.commit()
 				iden+=1
 			else:
 				print "Could not resolve track metadata for: " + track

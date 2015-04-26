@@ -102,7 +102,6 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		self.hermes.play(selected.id)
 		self.playingLabel.setText("   "+selected.title+" by "+selected.artist+" on "+selected.album)
 		self.playpause() 
-		updateArt(selected.id)
 
     def addToQueue(self):
         selected = self.searchResults_Tra.currentItem()
@@ -191,18 +190,6 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def like(self):
 	self.hermes.like()
-
-    def updateArt(self, sid):
-	res = self.user.library_get('artUrl', [], 'id', ['artist'], word, True)
-	
-	data = urllib.urlopen(res[0]).read()
-	pixmap = QtGui.QPixmap()
-	pixmap.loadFromData(data)
-
-	self.artView.setPixmap(pixmap)
-	
-
-
 
 # Main script
 app = QtGui.QApplication(sys.argv)
