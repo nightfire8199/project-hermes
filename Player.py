@@ -80,14 +80,14 @@ class Player:
 			for track in self.Queue.items:
 				if track is self.Queue.items[self.pos]:
 					print ">> ",
-				cursor.execute("SELECT id, artist, album, title FROM stream WHERE id LIKE ?", (track.id,))
+				cursor.execute("SELECT id, artist, album, title, tracknum, art FROM stream WHERE id LIKE ?", (track.id,))
 				result.append(cursor.fetchone())
 				#print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")	
 		else:
 			for track in self.Queue.items:
 				if track is self.Queue.items[self.pos]:
 					print ">> ",
-				cursor.execute("SELECT id, artist, album, title FROM tracks WHERE id LIKE ?", (track.id,))
+				cursor.execute("SELECT id, artist, album, title, tracknum, art FROM tracks WHERE id LIKE ?", (track.id,))
 				result.append(cursor.fetchone())
 				#print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
 		return result
