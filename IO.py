@@ -33,7 +33,7 @@ def Print_Results(Artists, Albums, Tracks):
 	if len(Tracks) > 0:
 		T = 0
 		print "\n-----------------------------[ Tracks ]-----------------------------"
-		for [ident,artist,album,track,tracknum] in Tracks:
+		for [ident,artist,album,track,tracknum,art] in Tracks:
 			print "T" + str(T), '\t', track.encode("utf-8") + "\t on \t" + album.encode("utf-8") + "\t by \t", artist.encode("utf-8")
 			#print "T" + str(T), '\t', artist.encode("utf-8"), ' - ', album.encode("utf-8"), ' - ', track.encode("utf-8")
 			R_Tra.append(ident)

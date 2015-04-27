@@ -553,7 +553,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
               <item>
                <spacer name="horizontalSpacer_5">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -593,7 +593,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -684,8 +684,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
             </layout>
            </item>
           </layout>
-          <zorder>layoutWidget</zorder>
-          <zorder>horizontalSpacer</zorder>
           <zorder></zorder>
          </widget>
          <widget class="QWidget" name="tab_2">

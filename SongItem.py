@@ -9,16 +9,18 @@ class SongItem(QtGui.QListWidgetItem):
 		self.artist = str(other[1].encode("utf-8"))
 		self.album = str(other[2].encode("utf-8"))
 		self.title = str(other[3].encode("utf-8"))
-		self.setText(self.title+"   -   "+self.album+"   -   "+self.artist)
+		self.art = str(other[5].encode("utf-8"))
+		self.setText(self.title+"\non: "+self.album+"\nby: "+self.artist)
 
 	@classmethod
 	def copyCtor(this, copy):
-		newSong = SongItem(['','','',''])
+		newSong = SongItem(['','','','','',''])
 		newSong.id = copy.id
 		newSong.artist = copy.artist
 		newSong.album = copy.album
 		newSong.title = copy.title
-		newSong.setText(newSong.title+"   -   "+newSong.album+"   -   "+newSong.artist)
+		newSong.art = copy.art
+		newSong.setText(newSong.title+"\non: "+newSong.album+"\nby: "+newSong.artist)
 		return newSong
 
 class ArtistItem(QtGui.QListWidgetItem):
@@ -48,7 +50,7 @@ class AlbumItem(QtGui.QListWidgetItem):
 		newAlbum = AlbumItem(['',''])
 		newAlbum.artist = copy.artist
 		newAlbum.album = copy.album
-		self.setText(newAlbum.album+"   -   "+newAlbum.artist)
+		self.setText(newAlbum.album+"\nby: "+newAlbum.artist)
 		return newAlbum
 
 

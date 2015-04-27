@@ -43,6 +43,12 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
 	self.likeButton.hide()
 
+	#self.tabWidget.tabBar().setVisible(False) <----- To remove tab buttons
+
+	self.nowPlaying.setIconSize(QtCore.QSize(75,75))
+ 	self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
+	self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
+
     def createActions(self):
         self.quitAction = QtGui.QAction('&Quit', self)        
         self.quitAction.setShortcut('Ctrl+Q')
@@ -86,13 +92,29 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         searchText = self.searchBox.text()
         [artists,albums,tracks] = self.hermes.search(searchText, self)
 
+	#print len(albums)
+
         self.searchResults_Tra.clear()
  	self.searchResults_Alb.clear()
 	self.searchResults_Art.clear()
+
         for song in tracks:
-            self.searchResults_Tra.addItem(SongItem(song))
+        #    newItem = SongItem(song)
+	#    if newItem.art == '':
+	#    	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+	#	newItem.setIcon(QtGui.QIcon(image))
+	#    else:	
+	#	data = urllib3.PoolManager().request("GET", newItem.art)
+	#	image = QtGui.QPixmap()
+	#	image.loadFromData(data.data)
+	#	newItem.setIcon(QtGui.QIcon(image))
+	    newItem = SongItem(song)
+	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
+	    self.searchResults_Tra.addItem(newItem)
+
 	for album in albums:
 	    self.searchResults_Alb.addItem(AlbumItem(album))
+
 	for artist in artists:
 	    self.searchResults_Art.addItem(ArtistItem(artist))
 
@@ -126,7 +148,19 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         selected = self.searchResults_Tra.currentItem()
         self.hermes.add(selected.id)
         newItem = SongItem.copyCtor(selected)
-
+	art_url = ''
+	if self.hermes.player.Queue.title == 'stream':
+		art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(selected.id), True)[1]
+	else:
+		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(selected.id), True)[1]
+	if art_url == '':
+		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+		newItem.setIcon(QtGui.QIcon(image))
+	else:	
+		data = urllib3.PoolManager().request("GET", art_url)
+		image = QtGui.QPixmap()
+		image.loadFromData(data.data)
+		newItem.setIcon(QtGui.QIcon(image))
         self.nowPlaying.addItem(newItem)
         return newItem
 
@@ -146,12 +180,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
     def viewArtist(self):
 	selected = self.searchResults_Art.selectedItems()
 	[artists,albums,tracks] = self.hermes.view_Ar(selected[0])
-
+	#print len(albums)
         self.searchResults_Tra.clear()
  	self.searchResults_Alb.clear()
 	self.searchResults_Art.clear()
         for song in tracks:
-            self.searchResults_Tra.addItem(SongItem(song))
+	    newItem = SongItem(song)
+	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
+	    self.searchResults_Tra.addItem(newItem)
 	for album in albums:
 	    self.searchResults_Alb.addItem(AlbumItem(album))
 	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
@@ -164,8 +200,10 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
  	self.searchResults_Alb.clear()
 	self.searchResults_Art.clear()
         for song in tracks:
-            self.searchResults_Tra.addItem(SongItem(song))
-	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist]))
+	    newItem = SongItem(song)
+	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
+	    self.searchResults_Tra.addItem(newItem)
+	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist,selected[0].art]))
 	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
 
     def sync(self):
@@ -209,6 +247,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
 	for track in currQueue:
 		newItem = SongItem(track)
+
+		art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(track[0]), True)[1]
+		data = urllib3.PoolManager().request("GET", art_url)
+		image = QtGui.QPixmap()
+		image.loadFromData(data.data)
+		newItem.setIcon(QtGui.QIcon(image))
+
         	self.nowPlaying.addItem(newItem)
 	self.likeButton.show()
 	self.nowPlaying.setCurrentRow(0)
