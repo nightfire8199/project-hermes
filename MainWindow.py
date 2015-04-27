@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import urllib
+import urllib3
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import *
 from Hermes import *
@@ -25,47 +25,16 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
 
-      #  horizSplitter = QSplitter(self)
-       # horizSplitter.setOrientation(2) #horizontal
-        #self.setCentralWidget(horizSplitter)
-
-        #centralWidget = QWidget()
-        #centralLayout = QVBoxLayout()
-        #centralWidget.setLayout(centralLayout)
-        #horizSplitter.addWidget(centralWidget)
-
-        #horizSplitter.addWidget(self.groupBox)
-        #self.groupBox.setFixedHeight(95)
-
-        #vertSplitter = QSplitter(centralWidget)
-        #vertSplitter.setOrientation(1) #vertical
-        #centralLayout.addWidget(vertSplitter)
-
-        #buttonPanel = QWidget()
-        #buttonPanel.setMinimumWidth(150)
-        #buttonPanelLayout = QVBoxLayout()
-        #buttonPanel.setLayout(buttonPanelLayout)
-
-        #self.streamB = QPushButton(buttonPanel)
-        #self.streamB.setText("Stream")
-        #buttonPanelLayout.addWidget(self.streamB)
-
-       # separator = QLabel()
-        #buttonPanelLayout.addWidget(separator)
-        #playlistLabel = QLabel()
-        #playlistLabel.setText("Playlists")
-        #buttonPanelLayout.addWidget(playlistLabel)
-
-        #self.playlists = QListWidget(buttonPanel)
-        #buttonPanelLayout.addWidget(self.playlists)
-
-        #vertSplitter.addWidget(buttonPanel)
-        #vertSplitter.addWidget(self.tabWidget)
-
         self.createActions()
         self.connectActions()
         self.addMenu()
         self.hermes = Hermes(self.trackSlider,self.nowPlaying)
+
+	#data = urllib.urlopen('http://static.iconsplace.com/icons/preview/white/music-record-256.png').read()
+	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+	#image.loadFromData(data)
+	self.artView.setScaledContents(True)
+	self.artView.setPixmap(image.scaled(75,75))
 
 	#currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
 	#for track in currQueue:
@@ -136,6 +105,21 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		selected = self.nowPlaying.currentItem()
 		self.hermes.play(selected.id)
 		self.playingLabel.setText("   "+selected.title+" by "+selected.artist+" on "+selected.album)
+		art_url = ''
+		if self.hermes.player.Queue.title == 'stream':
+			art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(selected.id), True)[1]
+		else:
+			art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(selected.id), True)[1]
+		if art_url == '':
+			image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+			self.artView.setScaledContents(True)
+			self.artView.setPixmap(image.scaled(75,75))
+		else:	
+			data = urllib3.PoolManager().request("GET", art_url)
+			image = QtGui.QPixmap()
+			image.loadFromData(data.data)
+			self.artView.setScaledContents(True)
+			self.artView.setPixmap(image.scaled(75,75))
 		self.playpause() 
 
     def addToQueue(self):
@@ -207,6 +191,9 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
 		self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 		self.playingLabel.setText('')
+		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+		self.artView.setScaledContents(True)
+		self.artView.setPixmap(image.scaled(75,75))
 
     def playnext(self):
 	if self.hermes.player.pos + 1 < self.nowPlaying.count():
