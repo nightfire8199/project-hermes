@@ -145,22 +145,25 @@ class User:
 			S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
 
 		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum INTEGER)
+		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum INTEGER, art TExT)
 		''')
 		self.cursor.execute('''SELECT count(*) FROM tracks''')
 		iden = self.cursor.fetchone()[0]
 		for track in G_list:
+			art = ''
+			try:
+				art = track['albumArtRef'][0]['url']
+			except KeyError:
+				art = ''
 			self.cursor.execute('''
-				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
-				''', (iden, track['title'], track['album'], track['artist'], 'G', 'G_' + str(track['id']), track['trackNumber']))
-			self.db.commit()
+				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+				''', (iden, track['title'], track['album'], track['artist'], 'G', 'G_' + str(track['id']), track['trackNumber'], art))
 			iden+=1
 
 		for track in S_list:
 			self.cursor.execute('''
-				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
-				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', 'S_' + str(track.id), 0))
-			self.db.commit()
+				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', 'S_' + str(track.id), 0, track.artwork_url))
 			iden+=1
 
 		for track in L_list:
@@ -168,9 +171,8 @@ class User:
 			tag.link(track)
 			if len(tag.getArtist()) and len(tag.getAlbum()) and len(tag.getTitle()) > 0:
 				self.cursor.execute('''
-					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?)
-					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', 'L_' + str(track), tag.track_num[0]))
-				self.db.commit()
+					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', 'L_' + str(track), tag.track_num[0], ''))
 				iden+=1
 			else:
 				print "Could not resolve track metadata for: " + track
@@ -184,7 +186,7 @@ class User:
 		tracks = client.S_client.get('/me/activities/tracks/affiliated', limit = 200)
 		
 		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS stream(id INTEGER PRIMARY KEY, title TEXT, album TEXT,artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER)
+		    CREATE TABLE IF NOT EXISTS stream(id INTEGER PRIMARY KEY, title TEXT, album TEXT,artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER, art TEXT)
 		''')
 
 		iden = 0
@@ -199,8 +201,8 @@ class User:
 					if play.id in duplifier:
 						continue
 					self.cursor.execute('''
-						INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
-						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0))
+						INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0, play.artwork_url) )
 					self.db.commit()
 					player.add(iden,'S_' + str(play.id),'S')
 
@@ -209,8 +211,8 @@ class User:
 					iden +=1	
 			else:
 				self.cursor.execute('''
-					INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?)
-					''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', 'S_'+ str(track['origin']['id']), 0))
+					INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+					''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', 'S_'+ str(track['origin']['id']), 0, track['origin']['artwork_url']))
 				self.db.commit()				
 				player.add(iden,'S_' + str(track['origin']['id']),'S')
 
