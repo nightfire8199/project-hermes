@@ -9,6 +9,12 @@ from Hermes import *
 from SongItem import *
 from Interface import *
 
+import urllib3.contrib.pyopenssl
+import requests
+
+requests.packages.urllib3.disable_warnings()
+urllib3.contrib.pyopenssl.inject_into_urllib3()
+
 form_class = uic.loadUiType("ui1.ui")[0]                 # Load the UI
 
 class MyWindowClass(QtGui.QMainWindow, form_class):
