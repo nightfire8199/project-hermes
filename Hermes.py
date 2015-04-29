@@ -118,6 +118,11 @@ class Hermes:
 	def add_track(self, title):
 		pass
 
+	def addAlbum(self, alb):
+		tracks = all_rows = self.user.library_get_exact('id', ['artist','album','title','tracknum','art'], 'album', ['tracknum'], alb)
+		for track in tracks:
+			self.player.add(track[0], track[1].encode("utf-8"), track[2].encode("utf-8"))
+
 	def print_queue(self, title):
 		for playlist in self.user.playlists:
 			if playlist.title == "playlist_"+title:
@@ -266,4 +271,6 @@ class Hermes:
 	def quit(self):
 		self.user.cursor.execute('''DROP TABLE IF EXISTS stream''')
 		self.user.db.close()
+		if self.player.Queue != 'stream':
+			self.player.Queue.save()
 		

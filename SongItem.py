@@ -54,6 +54,7 @@ class AlbumItem(QtGui.QListWidgetItem):
 		return newAlbum
 
 
+
 class TableSongItem(QtGui.QTableWidgetItem):
 
 	def __init__(self, other, parent = None):

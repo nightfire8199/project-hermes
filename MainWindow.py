@@ -7,6 +7,7 @@ from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import *
 from Hermes import *
 from SongItem import *
+from Interface import *
 
 form_class = uic.loadUiType("ui1.ui")[0]                 # Load the UI
 
@@ -24,11 +25,26 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nextButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
+	self.searchResults_Tra = TrackViewer(self, self.searchResults_Tra)
+	self.hermes = Hermes(self.trackSlider,self.nowPlaying)
+	self.searchResults_Alb = AlbumViewer(self, self.searchResults_Alb)
+
+	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
+	for track in currQueue:
+		newItem = SongItem(track)
+
+		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(track[0]), True)[1]
+		data = urllib3.PoolManager().request("GET", art_url)
+		image = QtGui.QPixmap()
+		image.loadFromData(data.data)
+		newItem.setIcon(QtGui.QIcon(image))
+
+        	self.nowPlaying.addItem(newItem)
 
         self.createActions()
         self.connectActions()
         self.addMenu()
-        self.hermes = Hermes(self.trackSlider,self.nowPlaying)
+        
 
 	#data = urllib.urlopen('http://static.iconsplace.com/icons/preview/white/music-record-256.png').read()
 	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
@@ -36,18 +52,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	self.artView.setScaledContents(True)
 	self.artView.setPixmap(image.scaled(75,75))
 
-	#currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
-	#for track in currQueue:
-	#	newItem = SongItem(track)
-        #	self.nowPlaying.addItem(newItem)
-
 	self.likeButton.hide()
 
 	#self.tabWidget.tabBar().setVisible(False) <----- To remove tab buttons
 
 	self.nowPlaying.setIconSize(QtCore.QSize(75,75))
- 	self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
-	self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
+ 	#self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
+	#self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
 
     def createActions(self):
         self.quitAction = QtGui.QAction('&Quit', self)        
@@ -58,6 +69,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.syncAction.setStatusTip('Sync Library')
 
         self.statusBar()
+
+   # def contextMenuEvent(self, event):
+	#self.menu = QtGui.QMenu(self)
+   	#renameAction = QtGui.QAction('Rename', self)
+    	#renameAction.triggered.connect(self.getStream)
+    	#self.menu.addAction(renameAction)
+    	
+    	#self.menu.popup(QtGui.QCursor.pos())
 
     def connectActions(self):
         self.quitAction.triggered.connect(self.quitApp)
@@ -144,8 +163,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 			self.artView.setPixmap(image.scaled(75,75))
 		self.playpause() 
 
-    def addToQueue(self):
-        selected = self.searchResults_Tra.currentItem()
+    def addToQueue(self, insert = None):
+	if insert == None:
+        	selected = self.searchResults_Tra.currentItem()
+	else:
+		selected = SongItem(insert)
         self.hermes.add(selected.id)
         newItem = SongItem.copyCtor(selected)
 	art_url = ''
@@ -203,7 +225,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	    newItem = SongItem(song)
 	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
 	    self.searchResults_Tra.addItem(newItem)
-	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist,selected[0].art]))
+	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist]))
 	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
 
     def sync(self):
