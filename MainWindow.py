@@ -144,7 +144,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	    self.searchResults_Art.addItem(ArtistItem(artist))
 
     def addToQueueAndPlay(self):
-        newItem = self.addToQueue()
+        newItem = self.addToQueue([])
         self.nowPlaying.setCurrentRow(self.nowPlaying.count()-1)
 
     def playSelected(self):
