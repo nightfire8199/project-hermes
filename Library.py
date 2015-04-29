@@ -21,7 +21,6 @@ class Playlist:
 		if not path.exists(self.get_shelve()):
 			self.save()
 			return
-
 		shelf = shelve.open(self.get_shelve(), 'r')
 		self.items = shelf[self.title]
 		shelf.close()

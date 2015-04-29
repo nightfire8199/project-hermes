@@ -7,6 +7,14 @@ from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import *
 from Hermes import *
 from SongItem import *
+from Interface import *
+from PrefsDialog import *
+
+import urllib3.contrib.pyopenssl
+import requests
+
+requests.packages.urllib3.disable_warnings()
+urllib3.contrib.pyopenssl.inject_into_urllib3()
 
 form_class = uic.loadUiType("ui1.ui")[0]                 # Load the UI
 
@@ -24,11 +32,26 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nextButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
+	#self.searchResults_Tra = TrackViewer(self, self.searchResults_Tra)
+	self.hermes = Hermes(self.trackSlider,self.nowPlaying)
+	self.searchResults_Alb = AlbumViewer(self, self.searchResults_Alb)
+
+	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
+	for track in currQueue:
+		newItem = SongItem(track)
+
+		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(track[0]), True)[1]
+		data = urllib3.PoolManager().request("GET", str(art_url))
+		image = QtGui.QPixmap()
+		image.loadFromData(data.data)
+		newItem.setIcon(QtGui.QIcon(image))
+
+        	self.nowPlaying.addItem(newItem)
 
         self.createActions()
         self.connectActions()
         self.addMenu()
-        self.hermes = Hermes(self.trackSlider,self.nowPlaying)
+        
 
 	#data = urllib.urlopen('http://static.iconsplace.com/icons/preview/white/music-record-256.png').read()
 	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
@@ -36,18 +59,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	self.artView.setScaledContents(True)
 	self.artView.setPixmap(image.scaled(75,75))
 
-	#currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
-	#for track in currQueue:
-	#	newItem = SongItem(track)
-        #	self.nowPlaying.addItem(newItem)
-
 	self.likeButton.hide()
 
 	#self.tabWidget.tabBar().setVisible(False) <----- To remove tab buttons
 
 	self.nowPlaying.setIconSize(QtCore.QSize(75,75))
- 	self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
-	self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
+ 	#self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
+	#self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
 
     def createActions(self):
         self.quitAction = QtGui.QAction('&Quit', self)        
@@ -57,7 +75,19 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.syncAction.setShortcut('Ctrl+S')
         self.syncAction.setStatusTip('Sync Library')
 
+        self.prefsAction = QtGui.QAction('&Preferences', self)  
+        self.prefsAction.setShortcut('Ctrl+P')     
+        self.prefsAction.setStatusTip('Customize Hermes')
+
         self.statusBar()
+
+   # def contextMenuEvent(self, event):
+	#self.menu = QtGui.QMenu(self)
+   	#renameAction = QtGui.QAction('Rename', self)
+    	#renameAction.triggered.connect(self.getStream)
+    	#self.menu.addAction(renameAction)
+    	
+    	#self.menu.popup(QtGui.QCursor.pos())
 
     def connectActions(self):
         self.quitAction.triggered.connect(self.quitApp)
@@ -76,6 +106,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.clearQueueButton.clicked.connect(self.clearQueue)
 	self.streamButton.clicked.connect(self.getStream)
 	self.likeButton.clicked.connect(self.like)
+        self.prefsAction.triggered.connect(self.launchPrefs)
 
     def addMenu(self):
         menubar = self.menuBar()
@@ -83,10 +114,26 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         fileMenu.addAction(self.quitAction)
         toolMenu = menubar.addMenu('&Tools')
         toolMenu.addAction(self.syncAction)
+        toolMenu.addAction(self.prefsAction)
 
     def quitApp(self):
         self.hermes.quit()
         QtGui.qApp.quit()
+
+    def launchPrefs(self):
+        dialog = QDialog(self)
+        dialog.ui = PrefsDialog(self)
+        dialog.ui.setupUi(dialog)
+        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.refreshUI()
+
+    def refreshUI(self):
+        if self.hermes.player.vlc.is_playing():
+            self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
+        else:
+            self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
+        self.nextButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/next.png")))
+        self.prevButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/prev.png")))
 
     def search(self): # button event handler
         searchText = self.searchBox.text()
@@ -137,15 +184,18 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 			self.artView.setScaledContents(True)
 			self.artView.setPixmap(image.scaled(75,75))
 		else:	
-			data = urllib3.PoolManager().request("GET", art_url)
+			data = urllib3.PoolManager().request("GET", str(art_url))
 			image = QtGui.QPixmap()
 			image.loadFromData(data.data)
 			self.artView.setScaledContents(True)
 			self.artView.setPixmap(image.scaled(75,75))
 		self.playpause() 
 
-    def addToQueue(self):
-        selected = self.searchResults_Tra.currentItem()
+    def addToQueue(self,args, insert = None):
+	if insert == None:
+        	selected = self.searchResults_Tra.currentItem()
+	else:
+		selected = SongItem(insert)
         self.hermes.add(selected.id)
         newItem = SongItem.copyCtor(selected)
 	art_url = ''
@@ -157,7 +207,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
 		newItem.setIcon(QtGui.QIcon(image))
 	else:	
-		data = urllib3.PoolManager().request("GET", art_url)
+		data = urllib3.PoolManager().request("GET", str(art_url))
 		image = QtGui.QPixmap()
 		image.loadFromData(data.data)
 		newItem.setIcon(QtGui.QIcon(image))
@@ -203,7 +253,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	    newItem = SongItem(song)
 	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
 	    self.searchResults_Tra.addItem(newItem)
-	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist,selected[0].art]))
+	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist]))
 	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
 
     def sync(self):
@@ -215,18 +265,18 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	if len(self.hermes.player.Queue.items) > 0:
 		self.hermes.player.pos = self.nowPlaying.currentRow()
 		if self.hermes.player.vlc.is_playing():
-			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
+			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
 			self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 			self.hermes.player.vlc.pause()
 		else:
-			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/pause_nofill_white.png")))
+			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
 			self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 			if self.hermes.player.vlc.get_media() == None:
 				self.hermes.player.play_queue(self.nowPlaying.currentRow())
 			else:
 				self.hermes.player.vlc.play()
 	else:
-		self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
+		self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
 		self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 		self.playingLabel.setText('')
 		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
@@ -249,7 +299,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		newItem = SongItem(track)
 
 		art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(track[0]), True)[1]
-		data = urllib3.PoolManager().request("GET", art_url)
+		data = urllib3.PoolManager().request("GET", str(art_url))
 		image = QtGui.QPixmap()
 		image.loadFromData(data.data)
 		newItem.setIcon(QtGui.QIcon(image))

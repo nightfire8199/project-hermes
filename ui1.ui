@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>846</width>
-    <height>718</height>
+    <width>848</width>
+    <height>667</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -593,7 +593,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -756,20 +756,6 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
              </item>
             </layout>
            </item>
-           <item row="1" column="1">
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
-              <widget class="QLabel" name="label_2">
-               <property name="text">
-                <string>Tracks</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QListWidget" name="searchResults_Tra"/>
-             </item>
-            </layout>
-           </item>
            <item row="2" column="0" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
@@ -795,6 +781,27 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
                </property>
                <property name="text">
                 <string>Add</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="1">
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Tracks</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QListWidget" name="searchResults_Tra">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>350</height>
+                </size>
                </property>
               </widget>
              </item>
@@ -846,6 +853,9 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
            <property name="text">
             <string/>
            </property>
+           <property name="indent">
+            <number>0</number>
+           </property>
           </widget>
          </item>
          <item>
@@ -872,7 +882,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>assets/prev_white.png</normaloff>assets/prev_white.png</iconset>
+                     <normaloff>assets/buttons/prev.png</normaloff>assets/buttons/prev.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -889,7 +899,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>assets/play_fill_white.png</normaloff>assets/play_fill_white.png</iconset>
+                     <normaloff>assets/buttons/play_fill.png</normaloff>assets/buttons/play_fill.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -912,7 +922,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>assets/next_white.png</normaloff>assets/next_white.png</iconset>
+                     <normaloff>assets/buttons/next.png</normaloff>assets/buttons/next.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -966,8 +976,8 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>846</width>
-     <height>20</height>
+     <width>848</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
