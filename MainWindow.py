@@ -31,7 +31,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nextButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
-	self.searchResults_Tra = TrackViewer(self, self.searchResults_Tra)
+	#self.searchResults_Tra = TrackViewer(self, self.searchResults_Tra)
 	self.hermes = Hermes(self.trackSlider,self.nowPlaying)
 	self.searchResults_Alb = AlbumViewer(self, self.searchResults_Alb)
 
@@ -40,7 +40,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		newItem = SongItem(track)
 
 		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(track[0]), True)[1]
-		data = urllib3.PoolManager().request("GET", art_url)
+		data = urllib3.PoolManager().request("GET", str(art_url))
 		image = QtGui.QPixmap()
 		image.loadFromData(data.data)
 		newItem.setIcon(QtGui.QIcon(image))
@@ -162,14 +162,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 			self.artView.setScaledContents(True)
 			self.artView.setPixmap(image.scaled(75,75))
 		else:	
-			data = urllib3.PoolManager().request("GET", art_url)
+			data = urllib3.PoolManager().request("GET", str(art_url))
 			image = QtGui.QPixmap()
 			image.loadFromData(data.data)
 			self.artView.setScaledContents(True)
 			self.artView.setPixmap(image.scaled(75,75))
 		self.playpause() 
 
-    def addToQueue(self, insert = None):
+    def addToQueue(self,args, insert = None):
 	if insert == None:
         	selected = self.searchResults_Tra.currentItem()
 	else:
@@ -185,7 +185,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
 		newItem.setIcon(QtGui.QIcon(image))
 	else:	
-		data = urllib3.PoolManager().request("GET", art_url)
+		data = urllib3.PoolManager().request("GET", str(art_url))
 		image = QtGui.QPixmap()
 		image.loadFromData(data.data)
 		newItem.setIcon(QtGui.QIcon(image))
@@ -277,7 +277,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		newItem = SongItem(track)
 
 		art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(track[0]), True)[1]
-		data = urllib3.PoolManager().request("GET", art_url)
+		data = urllib3.PoolManager().request("GET", str(art_url))
 		image = QtGui.QPixmap()
 		image.loadFromData(data.data)
 		newItem.setIcon(QtGui.QIcon(image))
