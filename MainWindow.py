@@ -54,7 +54,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         
 
 	#data = urllib.urlopen('http://static.iconsplace.com/icons/preview/white/music-record-256.png').read()
-	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+	image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
 	#image.loadFromData(data)
 	self.artView.setScaledContents(True)
 	self.artView.setPixmap(image.scaled(75,75))
@@ -135,6 +135,10 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nextButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/next.png")))
         self.prevButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/prev.png")))
 
+        image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
+        self.artView.setScaledContents(True)
+        self.artView.setPixmap(image.scaled(75,75))
+
     def search(self): # button event handler
         searchText = self.searchBox.text()
         [artists,albums,tracks] = self.hermes.search(searchText, self)
@@ -148,7 +152,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         for song in tracks:
         #    newItem = SongItem(song)
 	#    if newItem.art == '':
-	#    	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+	#    	image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
 	#	newItem.setIcon(QtGui.QIcon(image))
 	#    else:	
 	#	data = urllib3.PoolManager().request("GET", newItem.art)
@@ -180,7 +184,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		else:
 			art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(selected.id), True)[1]
 		if art_url == '':
-			image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+			image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
 			self.artView.setScaledContents(True)
 			self.artView.setPixmap(image.scaled(75,75))
 		else:	
@@ -204,7 +208,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 	else:
 		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(selected.id), True)[1]
 	if art_url == '':
-		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+		image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
 		newItem.setIcon(QtGui.QIcon(image))
 	else:	
 		data = urllib3.PoolManager().request("GET", str(art_url))
@@ -279,7 +283,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 		self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
 		self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 		self.playingLabel.setText('')
-		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+		image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
 		self.artView.setScaledContents(True)
 		self.artView.setPixmap(image.scaled(75,75))
 
