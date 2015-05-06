@@ -54,6 +54,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.statusBar()
 
     def initializeLayout(self):
+        self.toNP.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.toLIB.setStyleSheet("background-color: rgba(0,0,0,0)")
 
         self.theme = Theme("theme", self.hermes.user)
         self.buttonColor = QColor()
@@ -98,6 +100,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.likeButton.clicked.connect(self.like)
         self.getArt.connect(self.setAlbumArt)
         self.prefsAction.triggered.connect(self.launchPrefs)
+        self.toNP.clicked.connect(self.showNP)
+        self.toLIB.clicked.connect(self.showLIB)
 
     def addMenu(self):
         menubar = self.menuBar()
@@ -277,6 +281,9 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.refreshUI()
 
     def refreshUI(self):
+        self.toNP.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))
+        self.toLIB.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/local.png")))
+
         if self.hermes.player.vlc.is_playing():
             self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
         else:
@@ -293,6 +300,12 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
         # self.prefDialog.ui.buttonColorLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
+
+    def showNP(self):
+        self.stack.setCurrentIndex(0)
+
+    def showLIB(self):
+        self.stack.setCurrentIndex(1)
 
 # Main script
 app = QtGui.QApplication(sys.argv)
