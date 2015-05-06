@@ -47,8 +47,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.syncAction = QtGui.QAction('&Sync', self)
         self.syncAction.setShortcut('Ctrl+S')
         self.syncAction.setStatusTip('Sync Library')
-        self.prefsAction = QtGui.QAction('&Preferences', self)  
-        self.prefsAction.setShortcut('Ctrl+P')     
+        self.prefsAction = QtGui.QAction('&Preferences', self)
+        self.prefsAction.setShortcut('Ctrl+P')
         self.prefsAction.setStatusTip('Customize Hermes')
 
         self.statusBar()
@@ -62,7 +62,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.prefDialog.ui.setupUi(self.prefDialog)
         self.refreshUI()
 
-        with open('light.css', 'r') as content_file:
+        with open('dark.css', 'r') as content_file:
             appStyle = content_file.read()
         self.setStyleSheet(appStyle)
 
@@ -75,10 +75,9 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setText('')
         self.nowPlaying.setIconSize(QtCore.QSize(75, 75))
 
-        image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+        image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
         self.artView.setScaledContents(True)
         self.artView.setPixmap(image.scaled(75, 75))
-
 
     def connectActions(self):
         self.quitAction.triggered.connect(self.quitApp)
@@ -93,7 +92,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nowPlaying.itemDoubleClicked.connect(self.playCurrent)
         self.syncAction.triggered.connect(self.sync)
         self.addButton.clicked.connect(self.addToQueue)
-	self.trackSlider.sliderReleased.connect(self.setTime)
+        self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
         self.streamButton.clicked.connect(self.getStream)
         self.likeButton.clicked.connect(self.like)
@@ -142,7 +141,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.hermes.player.vlc.stop()
         self.likeButton.hide()
         self.playingLabel.setText('')
-        image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+        image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
         self.artView.setScaledContents(True)
         self.artView.setPixmap(image.scaled(75, 75))
         self.trackSlider.setValue(0)
@@ -194,11 +193,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playTrack(self.nowPlaying.currentItem())
 
     def setToPause(self):
-        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/pause_nofill_white.png")))
+        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
         self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 
     def setToPlay(self):
-        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
+        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
         self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 
     def playpause(self):
@@ -215,7 +214,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         else:
             self.setToPlay()
             self.playingLabel.setText('')
-            image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+            image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
             self.artView.setScaledContents(True)
             self.artView.setPixmap(image.scaled(75, 75))
 
@@ -274,11 +273,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playNext()
 
     def launchPrefs(self):
-    	self.prefDialog.ui.launch()
-        # self.prefDialog = QDialog(self)
-        # self.prefDialog.ui = PrefsDialog(self)
-        # dialog.ui.setupUi(dialog)
-        # self.prefDialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.prefDialog.ui.launch()
         self.refreshUI()
 
     def refreshUI(self):
