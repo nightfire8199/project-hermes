@@ -1,5 +1,5 @@
 from gmusicapi import Webclient
-from Playlist import *
+from Library import *
 import soundcloud
 
 import eyeD3
