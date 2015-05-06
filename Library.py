@@ -1,48 +1,36 @@
+
+from Shelver import *
+
 import shelve
 from os import path
 
-class Playlist:
 
-	def __init__(self, title, user):
-		self.title = title
-		self.items = []
-		self.user = user
-		self.load()
+class Playlist(Shelver):
 
-	def get_shelve(self):
-		return path.join(self.user.userdata_path, self.title)
+    def __init__(self, title, user):
+        # Shelver.__init__(title, user)
+        super(Playlist, self).__init__(title, user)
+        self.load()
 
-	def save(self):
-		shelf = shelve.open(self.get_shelve(), 'c')
-		shelf[self.title] = self.items
-		shelf.close()
+    def add(self, sid, streamid, location):
+        self.items.append(PlaylistItem(sid, streamid, location))
+        self.save()
 
-	def load(self):
-		if not path.exists(self.get_shelve()):
-			self.save()
-			return
-		shelf = shelve.open(self.get_shelve(), 'r')
-		self.items = shelf[self.title]
-		shelf.close()
+    def clear(self):
+        self.items = []
+        self.save()
 
-	def add(self, sid, streamid, location):
-		self.items.append(PlaylistItem(sid, streamid, location))
-		self.save()
+    def printItems(self):
+        for item in self.items:
+            item.printItem()
 
-	def clear(self):
-		self.items = []
-		self.save()
-
-	def printItems(self):
-		for item in self.items:
-			item.printItem()
 
 class PlaylistItem:
 
-	def __init__(self, sid, streamid, location):
-		self.id = sid
-		self.streamid = streamid
-		self.location = location
+    def __init__(self, sid, streamid, location):
+        self.id = sid
+        self.streamid = streamid
+        self.location = location
 
-	def printItem(self):
-		print self.id, self.streamid, self.location
+    def printItem(self):
+        print self.id, self.streamid, self.location

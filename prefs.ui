@@ -60,13 +60,32 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>110</y>
+       <y>29</y>
        <width>91</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
       <string>Button Color</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="buttonColorLabel">
+     <property name="geometry">
+      <rect>
+       <x>107</x>
+       <y>30</y>
+       <width>46</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
+     <property name="text">
+      <string>color</string>
      </property>
     </widget>
    </widget>

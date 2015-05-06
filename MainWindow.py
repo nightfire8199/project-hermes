@@ -24,6 +24,10 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
 
+        with open('light.css', 'r') as content_file:
+            appStyle = content_file.read()
+        self.setStyleSheet(appStyle)
+
         self.playpauseButton.setText('')
         self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.prevButton.setText('')
@@ -32,40 +36,47 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nextButton.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.playingLabel.setText('')
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
-	#self.searchResults_Tra = TrackViewer(self, self.searchResults_Tra)
-	self.hermes = Hermes(self.trackSlider,self.nowPlaying)
-	self.searchResults_Alb = AlbumViewer(self, self.searchResults_Alb)
+        #self.searchResults_Tra = TrackViewer(self, self.searchResults_Tra)
+        self.hermes = Hermes(self.trackSlider,self.nowPlaying)
+        self.searchResults_Alb = AlbumViewer(self, self.searchResults_Alb)
 
-	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
-	for track in currQueue:
-		newItem = SongItem(track)
+        currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
+        for track in currQueue:
+            newItem = SongItem(track)
 
-		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(track[0]), True)[1]
-		data = urllib3.PoolManager().request("GET", str(art_url))
-		image = QtGui.QPixmap()
-		image.loadFromData(data.data)
-		newItem.setIcon(QtGui.QIcon(image))
+        art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(track[0]), True)[1]
+        data = urllib3.PoolManager().request("GET", str(art_url))
+        image = QtGui.QPixmap()
+        image.loadFromData(data.data)
+        newItem.setIcon(QtGui.QIcon(image))
 
-        	self.nowPlaying.addItem(newItem)
+        self.nowPlaying.addItem(newItem)
 
         self.createActions()
         self.connectActions()
         self.addMenu()
         
 
-	#data = urllib.urlopen('http://static.iconsplace.com/icons/preview/white/music-record-256.png').read()
-	image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
-	#image.loadFromData(data)
-	self.artView.setScaledContents(True)
-	self.artView.setPixmap(image.scaled(75,75))
+        #data = urllib.urlopen('http://static.iconsplace.com/icons/preview/white/music-record-256.png').read()
+        image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
+        #image.loadFromData(data)
+        self.artView.setScaledContents(True)
+        self.artView.setPixmap(image.scaled(75,75))
 
-	self.likeButton.hide()
+        self.likeButton.hide()
 
-	#self.tabWidget.tabBar().setVisible(False) <----- To remove tab buttons
+        #self.tabWidget.tabBar().setVisible(False) <----- To remove tab buttons
 
-	self.nowPlaying.setIconSize(QtCore.QSize(75,75))
- 	#self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
-	#self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
+        self.nowPlaying.setIconSize(QtCore.QSize(75,75))
+        #self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
+        #self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
+
+        self.theme = Theme("theme", self.hermes.user)
+        self.buttonColor = QColor()
+        self.prefDialog = QDialog(self)
+        self.prefDialog.ui = PrefsDialog(self.theme, self)
+        self.prefDialog.ui.setupUi(self.prefDialog)
+        self.refreshUI()
 
     def createActions(self):
         self.quitAction = QtGui.QAction('&Quit', self)        
@@ -121,10 +132,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         QtGui.qApp.quit()
 
     def launchPrefs(self):
-        dialog = QDialog(self)
-        dialog.ui = PrefsDialog(self)
-        dialog.ui.setupUi(dialog)
-        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    	self.prefDialog.ui.launch()
+        # self.prefDialog = QDialog(self)
+        # self.prefDialog.ui = PrefsDialog(self)
+        # dialog.ui.setupUi(dialog)
+        # self.prefDialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.refreshUI()
 
     def refreshUI(self):
@@ -132,12 +144,18 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
             self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
         else:
             self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
+            image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
+            self.artView.setScaledContents(True)
+            self.artView.setPixmap(image.scaled(75,75))
+
         self.nextButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/next.png")))
         self.prevButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/prev.png")))
 
-        image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
-        self.artView.setScaledContents(True)
-        self.artView.setPixmap(image.scaled(75,75))
+        red, green, blue = self.theme.get_buttonColor()
+        print "Changing text color to: ", red, green, blue
+        self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
+
+        # self.prefDialog.ui.buttonColorLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
     def search(self): # button event handler
         searchText = self.searchBox.text()
