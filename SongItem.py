@@ -70,7 +70,6 @@ class SongItem(QtGui.QListWidgetItem):
         newSong.setText(newSong.title + "\non: " + newSong.album + "\nby: " + newSong.artist)
         return newSong
 
-
 class ArtistItem(QtGui.QListWidgetItem):
     def __init__(self, other, parent=None):
         super(ArtistItem, self).__init__(parent)
@@ -99,7 +98,6 @@ class AlbumItem(QtGui.QListWidgetItem):
         newAlbum.album = copy.album
         newAlbum.setText(newAlbum.album + "\nby: " + newAlbum.artist)
         return newAlbum
-
 
 class TableSongItem(QtGui.QTableWidgetItem):
     def __init__(self, other, parent=None):

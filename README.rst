@@ -6,12 +6,20 @@ A multi-sourced music management system written in python
 Installation Instructions
 -------------------------
 
+Install Prerequisites::
+	1. vlc media player
+	2. PyQt4
+
 Install Dependencies::
 
 	$ pip install soundcloud
 	$ pip install gmusicapi
 	$ pip install pyopenssl ndg-httpsclient pyasn1
 	$ pip install eyeD3-pip
+	$ pip install pillow
+	$ pip install numpy
+
+Note: On Windows it is usually easier to download and install numpy from the installers (.exe) on sourceforge
 
 
 Get a Soundcloud Client ID:
