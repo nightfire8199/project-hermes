@@ -282,7 +282,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def refreshUI(self):
         self.toNP.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))
-        self.toLIB.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/local.png")))
+        self.toLIB.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/search.png")))
 
         if self.hermes.player.vlc.is_playing():
             self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))

@@ -520,7 +520,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>assets/buttons/local.png</normaloff>assets/buttons/local.png</iconset>
+            <normaloff>assets/buttons/search.png</normaloff>assets/buttons/search.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -547,10 +547,22 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
       </item>
       <item>
        <widget class="QStackedWidget" name="stack">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="currentIndex">
          <number>0</number>
         </property>
         <widget class="QWidget" name="page">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <property name="topMargin">
            <number>0</number>
@@ -668,6 +680,12 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
          </layout>
         </widget>
         <widget class="QWidget" name="page_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <property name="topMargin">
            <number>0</number>
