@@ -478,7 +478,8 @@ QCheckBox::indicator:checked
 QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 {
     border: 1px solid #444;
-}</string>
+}
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -593,7 +594,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -612,6 +613,18 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
                  <width>250</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="autoScroll">
+                <bool>true</bool>
+               </property>
+               <property name="textElideMode">
+                <enum>Qt::ElideNone</enum>
+               </property>
+               <property name="resizeMode">
+                <enum>QListView::Adjust</enum>
+               </property>
+               <property name="viewMode">
+                <enum>QListView::ListMode</enum>
                </property>
               </widget>
              </item>

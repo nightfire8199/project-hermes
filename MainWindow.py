@@ -3,11 +3,12 @@
 
 import sys
 import urllib3
+import vlc
 from PyQt4 import QtCore, QtGui, uic
-from PyQt4.QtGui import *
+# from PyQt4.QtGui import *
 from Hermes import *
 from SongItem import *
-from Interface import *
+# from Interface import *
 
 import urllib3.contrib.pyopenssl
 import requests
@@ -15,92 +16,68 @@ import requests
 requests.packages.urllib3.disable_warnings()
 urllib3.contrib.pyopenssl.inject_into_urllib3()
 
-form_class = uic.loadUiType("ui1.ui")[0]                 # Load the UI
+form_class = uic.loadUiType("ui1.ui")[0]  # Load the UI
+
 
 class MyWindowClass(QtGui.QMainWindow, form_class):
+
+    getArt = QtCore.pyqtSignal()
+
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
+
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
-
-        self.playpauseButton.setText('')
-        self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
-        self.prevButton.setText('')
-        self.prevButton.setStyleSheet("background-color: rgba(0,0,0,0)")
-        self.nextButton.setText('')
-        self.nextButton.setStyleSheet("background-color: rgba(0,0,0,0)")
-        self.playingLabel.setText('')
-        self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
-	#self.searchResults_Tra = TrackViewer(self, self.searchResults_Tra)
-	self.hermes = Hermes(self.trackSlider,self.nowPlaying)
-	self.searchResults_Alb = AlbumViewer(self, self.searchResults_Alb)
-
-	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
-	for track in currQueue:
-		newItem = SongItem(track)
-
-		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(track[0]), True)[1]
-		data = urllib3.PoolManager().request("GET", str(art_url))
-		image = QtGui.QPixmap()
-		image.loadFromData(data.data)
-		newItem.setIcon(QtGui.QIcon(image))
-
-        	self.nowPlaying.addItem(newItem)
-
+        self.initializeLayout()
         self.createActions()
         self.connectActions()
         self.addMenu()
-        
 
-	#data = urllib.urlopen('http://static.iconsplace.com/icons/preview/white/music-record-256.png').read()
-	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
-	#image.loadFromData(data)
-	self.artView.setScaledContents(True)
-	self.artView.setPixmap(image.scaled(75,75))
-
-	self.likeButton.hide()
-
-	#self.tabWidget.tabBar().setVisible(False) <----- To remove tab buttons
-
-	self.nowPlaying.setIconSize(QtCore.QSize(75,75))
- 	#self.searchResults_Tra.setIconSize(QtCore.QSize(50,50))
-	#self.searchResults_Alb.setIconSize(QtCore.QSize(50,50))
+        self.hermes = Hermes()
+        self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.autoNext)
+        self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.updateTracker)
 
     def createActions(self):
-        self.quitAction = QtGui.QAction('&Quit', self)        
+        self.quitAction = QtGui.QAction('&Quit', self)
         self.quitAction.setShortcut('Ctrl+Q')
         self.quitAction.setStatusTip('Exit application')
-        self.syncAction = QtGui.QAction('&Sync', self)        
+        self.syncAction = QtGui.QAction('&Sync', self)
         self.syncAction.setShortcut('Ctrl+S')
         self.syncAction.setStatusTip('Sync Library')
-
         self.statusBar()
 
-   # def contextMenuEvent(self, event):
-	#self.menu = QtGui.QMenu(self)
-   	#renameAction = QtGui.QAction('Rename', self)
-    	#renameAction.triggered.connect(self.getStream)
-    	#self.menu.addAction(renameAction)
-    	
-    	#self.menu.popup(QtGui.QCursor.pos())
+    def initializeLayout(self):
+        self.likeButton.hide()
+
+        self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.prevButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.nextButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb(200,200,200)")
+        self.playingLabel.setText('')
+        self.nowPlaying.setIconSize(QtCore.QSize(75, 75))
+
+        image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+        self.artView.setScaledContents(True)
+        self.artView.setPixmap(image.scaled(75, 75))
 
     def connectActions(self):
         self.quitAction.triggered.connect(self.quitApp)
-        self.searchButton.clicked.connect(self.search)  # Bind the event handlers
+        self.searchButton.clicked.connect(self.search)
         self.searchBox.returnPressed.connect(self.search)
-	self.playpauseButton.clicked.connect(self.playpause)
-	self.nextButton.clicked.connect(self.playnext)
-	self.prevButton.clicked.connect(self.playprev)
-     	self.searchResults_Alb.itemDoubleClicked.connect(self.viewAlbum)
-	self.searchResults_Art.itemDoubleClicked.connect(self.viewArtist)
+        self.playpauseButton.clicked.connect(self.playpause)
+        self.nextButton.clicked.connect(self.playNext)
+        self.prevButton.clicked.connect(self.playPrev)
+        self.searchResults_Alb.itemDoubleClicked.connect(self.viewAlbum)
+        self.searchResults_Art.itemDoubleClicked.connect(self.viewArtist)
         self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
-	self.nowPlaying.currentRowChanged.connect(self.playSelected)
-	self.syncAction.triggered.connect(self.sync)
+        self.nowPlaying.itemDoubleClicked.connect(self.playCurrent)
+        self.syncAction.triggered.connect(self.sync)
         self.addButton.clicked.connect(self.addToQueue)
-	self.trackSlider.sliderReleased.connect(self.setTime)
+        self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
-	self.streamButton.clicked.connect(self.getStream)
-	self.likeButton.clicked.connect(self.like)
+        self.streamButton.clicked.connect(self.getStream)
+        self.likeButton.clicked.connect(self.like)
+        self.getArt.connect(self.setAlbumArt)
 
     def addMenu(self):
         menubar = self.menuBar()
@@ -113,181 +90,166 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.hermes.quit()
         QtGui.qApp.quit()
 
-    def search(self): # button event handler
-        searchText = self.searchBox.text()
-        [artists,albums,tracks] = self.hermes.search(searchText, self)
-
-	#print len(albums)
-
-        self.searchResults_Tra.clear()
- 	self.searchResults_Alb.clear()
-	self.searchResults_Art.clear()
-
-        for song in tracks:
-        #    newItem = SongItem(song)
-	#    if newItem.art == '':
-	#    	image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
-	#	newItem.setIcon(QtGui.QIcon(image))
-	#    else:	
-	#	data = urllib3.PoolManager().request("GET", newItem.art)
-	#	image = QtGui.QPixmap()
-	#	image.loadFromData(data.data)
-	#	newItem.setIcon(QtGui.QIcon(image))
-	    newItem = SongItem(song)
-	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
-	    self.searchResults_Tra.addItem(newItem)
-
-	for album in albums:
-	    self.searchResults_Alb.addItem(AlbumItem(album))
-
-	for artist in artists:
-	    self.searchResults_Art.addItem(ArtistItem(artist))
-
-    def addToQueueAndPlay(self):
-        newItem = self.addToQueue([])
-        self.nowPlaying.setCurrentRow(self.nowPlaying.count()-1)
-
-    def playSelected(self):
-	if len(self.hermes.player.Queue.items) > 0:
-		selected = self.nowPlaying.currentItem()
-		self.hermes.play(selected.id)
-		self.playingLabel.setText("   "+selected.title+" by "+selected.artist+" on "+selected.album)
-		art_url = ''
-		if self.hermes.player.Queue.title == 'stream':
-			art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(selected.id), True)[1]
-		else:
-			art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(selected.id), True)[1]
-		if art_url == '':
-			image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
-			self.artView.setScaledContents(True)
-			self.artView.setPixmap(image.scaled(75,75))
-		else:	
-			data = urllib3.PoolManager().request("GET", str(art_url))
-			image = QtGui.QPixmap()
-			image.loadFromData(data.data)
-			self.artView.setScaledContents(True)
-			self.artView.setPixmap(image.scaled(75,75))
-		self.playpause() 
-
-    def addToQueue(self,args, insert = None):
-	if insert == None:
-        	selected = self.searchResults_Tra.currentItem()
-	else:
-		selected = SongItem(insert)
-        self.hermes.add(selected.id)
-        newItem = SongItem.copyCtor(selected)
-	art_url = ''
-	if self.hermes.player.Queue.title == 'stream':
-		art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(selected.id), True)[1]
-	else:
-		art_url = self.hermes.user.library_get('id', ['art'], 'id', [], str(selected.id), True)[1]
-	if art_url == '':
-		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
-		newItem.setIcon(QtGui.QIcon(image))
-	else:	
-		data = urllib3.PoolManager().request("GET", str(art_url))
-		image = QtGui.QPixmap()
-		image.loadFromData(data.data)
-		newItem.setIcon(QtGui.QIcon(image))
-        self.nowPlaying.addItem(newItem)
-        return newItem
-
-    def clearQueue(self):
-	self.hermes.player.vlc.stop()
-	self.likeButton.hide()
-	self.playingLabel.setText('')
-	self.trackSlider.setValue(0)
-        self.hermes.player.clear_queue()
-        self.nowPlaying.clear()
-	self.playpause()
-
-    def setTime(self):
-	position = float(self.trackSlider.sliderPosition())/float(self.trackSlider.maximum())
-	self.hermes.player.vlc.set_position(position)
-
-    def viewArtist(self):
-	selected = self.searchResults_Art.selectedItems()
-	[artists,albums,tracks] = self.hermes.view_Ar(selected[0])
-	#print len(albums)
-        self.searchResults_Tra.clear()
- 	self.searchResults_Alb.clear()
-	self.searchResults_Art.clear()
-        for song in tracks:
-	    newItem = SongItem(song)
-	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
-	    self.searchResults_Tra.addItem(newItem)
-	for album in albums:
-	    self.searchResults_Alb.addItem(AlbumItem(album))
-	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
-
-    def viewAlbum(self):
-	selected = self.searchResults_Alb.selectedItems()
-	[artists,albums,tracks] = self.hermes.view_Al(selected[0])
-
-        self.searchResults_Tra.clear()
- 	self.searchResults_Alb.clear()
-	self.searchResults_Art.clear()
-        for song in tracks:
-	    newItem = SongItem(song)
-	    newItem.setText(newItem.title+" - "+newItem.album+" - "+newItem.artist)
-	    self.searchResults_Tra.addItem(newItem)
-	self.searchResults_Alb.addItem(AlbumItem([selected[0].album,selected[0].artist]))
-	self.searchResults_Art.addItem(ArtistItem([selected[0].artist]))
-
     def sync(self):
-	print "Syncing Library"
-	self.hermes.user.sync(self.hermes.client)
-	print "Sync Complete"
-
-    def playpause(self):
-	if len(self.hermes.player.Queue.items) > 0:
-		self.hermes.player.pos = self.nowPlaying.currentRow()
-		if self.hermes.player.vlc.is_playing():
-			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
-			self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
-			self.hermes.player.vlc.pause()
-		else:
-			self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/pause_nofill_white.png")))
-			self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
-			if self.hermes.player.vlc.get_media() == None:
-				self.hermes.player.play_queue(self.nowPlaying.currentRow())
-			else:
-				self.hermes.player.vlc.play()
-	else:
-		self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
-		self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
-		self.playingLabel.setText('')
-		image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
-		self.artView.setScaledContents(True)
-		self.artView.setPixmap(image.scaled(75,75))
-
-    def playnext(self):
-	if self.hermes.player.pos + 1 < self.nowPlaying.count():
-		self.nowPlaying.setCurrentRow(self.hermes.player.pos + 1)
-
-    def playprev(self):
-	if self.hermes.player.pos - 1 >= 0:
-		self.nowPlaying.setCurrentRow(self.hermes.player.pos - 1)
+        self.hermes.sync()
 
     def getStream(self):
-	self.clearQueue()
-	self.hermes.start('stream')
-	currQueue = self.hermes.player.get_queue(self.hermes.user.cursor)
-	for track in currQueue:
-		newItem = SongItem(track)
+        tracks = self.hermes.syncStream()
+        self.addTrackToQueue(SongItem(tracks[0]))
+        self.nowPlaying.setCurrentRow(len(self.nowPlaying) - 1)
+        self.playCurrent()
+        QtGui.QApplication.processEvents()
+        for song in tracks[1:]:
+            self.addTrackToQueue(SongItem(song))
+            QtGui.QApplication.processEvents()
 
-		art_url = self.hermes.user.stream_get('id', ['art'], 'id', [], str(track[0]), True)[1]
-		data = urllib3.PoolManager().request("GET", str(art_url))
-		image = QtGui.QPixmap()
-		image.loadFromData(data.data)
-		newItem.setIcon(QtGui.QIcon(image))
+    def addTrackToQueue(self, song):
+        song.setIcon(QtGui.QIcon(song.art))
+        self.nowPlaying.addItem(song)
 
-        	self.nowPlaying.addItem(newItem)
-	self.likeButton.show()
-	self.nowPlaying.setCurrentRow(0)
+    def addToQueue(self, args):
+        track = SongItem.copyCtor(self.searchResults_Tra.currentItem())
+        track.setIcon(QtGui.QIcon(track.art))
+        self.nowPlaying.addItem(track)
+
+    def setTime(self):
+        position = float(self.trackSlider.sliderPosition()) / float(self.trackSlider.maximum())
+        self.hermes.player.vlc.set_position(position)
+
+    def clearQueue(self):
+        self.hermes.player.vlc.stop()
+        self.likeButton.hide()
+        self.playingLabel.setText('')
+        image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+        self.artView.setScaledContents(True)
+        self.artView.setPixmap(image.scaled(75, 75))
+        self.trackSlider.setValue(0)
+        self.nowPlaying.clear()
+        self.setToPlay()
+        # self.playpause()
+
+    def updateSearch(self, artists, albums, tracks):
+        self.searchResults_Tra.clear()
+        self.searchResults_Alb.clear()
+        self.searchResults_Art.clear()
+
+        for album in albums:
+            self.searchResults_Alb.addItem(AlbumItem(album))
+            QtGui.QApplication.processEvents()
+        for artist in artists:
+            self.searchResults_Art.addItem(ArtistItem(artist))
+            QtGui.QApplication.processEvents()
+        for song in tracks:
+            newItem = SearchSongItem(song)
+            newItem.setText(newItem.title + " - " + newItem.album + " - " + newItem.artist)
+            self.searchResults_Tra.addItem(newItem)
+            QtGui.QApplication.processEvents()
+
+    def search(self):
+        searchText = self.searchBox.text()
+        [artists, albums, tracks] = self.hermes.search(searchText)
+        self.updateSearch(artists, albums, tracks)
+
+    def setAlbumArt(self):
+        self.artView.setScaledContents(True)
+        self.artView.setPixmap(self.nowPlaying.currentItem().art.scaled(75, 75))
+
+    def playTrack(self, track):
+        self.hermes.player.play_track(self.hermes.client.get_stream_URL(track.id, track.id[0]))
+
+        self.getArt.emit()
+
+        self.playingLabel.setText(QtCore.QString(track.title + ' by ' + track.artist + ' on ' + track.album))
+
+        if track.location == 's':
+            self.likeButton.show()
+        else:
+            self.likeButton.hide()
+
+        self.setToPause()
+
+    def playCurrent(self):
+        self.playTrack(self.nowPlaying.currentItem())
+
+    def setToPause(self):
+        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/pause_nofill_white.png")))
+        self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+
+    def setToPlay(self):
+        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
+        self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+
+    def playpause(self):
+        if len(self.nowPlaying) > 0:
+            if self.hermes.player.vlc.is_playing():
+                self.setToPlay()
+                self.hermes.player.vlc.pause()
+            else:
+                self.setToPause()
+                if self.hermes.player.vlc.get_media() is None:
+                    self.playTrack(self.nowPlaying.currentItem())
+                else:
+                    self.hermes.player.vlc.play()
+        else:
+            self.setToPlay()
+            self.playingLabel.setText('')
+            image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+            self.artView.setScaledContents(True)
+            self.artView.setPixmap(image.scaled(75, 75))
+
+    def playNext(self):
+        if self.nowPlaying.currentRow() < len(self.nowPlaying):
+            self.nowPlaying.setCurrentRow(self.nowPlaying.currentRow() + 1)
+            self.playTrack(self.nowPlaying.currentItem())
+
+    def playPrev(self):
+        if self.nowPlaying.currentRow() > 0:
+            self.nowPlaying.setCurrentRow(self.nowPlaying.currentRow() - 1)
+            self.playTrack(self.nowPlaying.currentItem())
+
+    def addToQueueAndPlay(self):
+        track = SongItem.copyCtor(self.searchResults_Tra.currentItem())
+        track.setIcon(QtGui.QIcon(track.art))
+        self.nowPlaying.addItem(track)
+        self.nowPlaying.setCurrentRow(len(self.nowPlaying) - 1)
+        self.playTrack(self.nowPlaying.currentItem())
+
+    def viewAlbum(self):
+        searchText = self.searchResults_Alb.currentItem().album
+        [artists, albums, tracks] = self.hermes.search_album(searchText)
+
+        tList = []
+        for song in tracks:
+            tList.append(song)
+        tList.sort(key=lambda x: x[4], reverse=False)
+
+        self.updateSearch(artists, albums, tList)
+
+    def viewArtist(self):
+        searchText = self.searchResults_Art.currentItem().artist
+        [artists, albums, tracks] = self.hermes.search_artist(searchText)
+
+        tList = []
+        for song in tracks:
+            tList.append(song)
+        tList.sort(key=lambda x: x[4], reverse=False)
+
+        self.updateSearch(artists, albums, tList)
 
     def like(self):
-	self.hermes.like()
+        track = self.nowPlaying.currentItem
+        if track.location == 's':
+            self.hermes.client.S_client.put('/me/favorites/%d' % int(track.id[2:]))
+
+    def updateTracker(self, args):
+        self.trackSlider.setValue(int(self.hermes.player.vlc.get_position() * self.trackSlider.maximum()))
+
+    def autoNext(self, args):
+        self.hermes.player.vlc = vlc.MediaPlayer()
+        self.hermes.player.events = self.hermes.player.vlc.event_manager()
+        self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.autoNext)
+        self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.updateTracker)
+        self.playNext()
 
 # Main script
 app = QtGui.QApplication(sys.argv)
