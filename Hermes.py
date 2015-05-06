@@ -2,9 +2,6 @@ from User import *
 from ClientHandler import *
 from Player import *
 
-# from IO import *
-
-
 class Hermes:
     def __init__(self):
         self.user = User()

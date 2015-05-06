@@ -3,12 +3,14 @@
 
 import sys
 import urllib3
+
 import vlc
+
 from PyQt4 import QtCore, QtGui, uic
 # from PyQt4.QtGui import *
 from Hermes import *
 from SongItem import *
-# from Interface import *
+from PrefsDialog import *
 
 import urllib3.contrib.pyopenssl
 import requests
@@ -25,15 +27,16 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
-
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
+
+        self.hermes = Hermes()
+
         self.initializeLayout()
         self.createActions()
         self.connectActions()
         self.addMenu()
 
-        self.hermes = Hermes()
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.autoNext)
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.updateTracker)
 
@@ -44,9 +47,25 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.syncAction = QtGui.QAction('&Sync', self)
         self.syncAction.setShortcut('Ctrl+S')
         self.syncAction.setStatusTip('Sync Library')
+        self.prefsAction = QtGui.QAction('&Preferences', self)  
+        self.prefsAction.setShortcut('Ctrl+P')     
+        self.prefsAction.setStatusTip('Customize Hermes')
+
         self.statusBar()
 
     def initializeLayout(self):
+
+        self.theme = Theme("theme", self.hermes.user)
+        self.buttonColor = QColor()
+        self.prefDialog = QDialog(self)
+        self.prefDialog.ui = PrefsDialog(self.theme, self)
+        self.prefDialog.ui.setupUi(self.prefDialog)
+        self.refreshUI()
+
+        with open('light.css', 'r') as content_file:
+            appStyle = content_file.read()
+        self.setStyleSheet(appStyle)
+
         self.likeButton.hide()
 
         self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
@@ -59,6 +78,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
         self.artView.setScaledContents(True)
         self.artView.setPixmap(image.scaled(75, 75))
+
 
     def connectActions(self):
         self.quitAction.triggered.connect(self.quitApp)
@@ -73,11 +93,12 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nowPlaying.itemDoubleClicked.connect(self.playCurrent)
         self.syncAction.triggered.connect(self.sync)
         self.addButton.clicked.connect(self.addToQueue)
-        self.trackSlider.sliderReleased.connect(self.setTime)
+	self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
         self.streamButton.clicked.connect(self.getStream)
         self.likeButton.clicked.connect(self.like)
         self.getArt.connect(self.setAlbumArt)
+        self.prefsAction.triggered.connect(self.launchPrefs)
 
     def addMenu(self):
         menubar = self.menuBar()
@@ -85,6 +106,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         fileMenu.addAction(self.quitAction)
         toolMenu = menubar.addMenu('&Tools')
         toolMenu.addAction(self.syncAction)
+        toolMenu.addAction(self.prefsAction)
 
     def quitApp(self):
         self.hermes.quit()
@@ -250,6 +272,32 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.autoNext)
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.updateTracker)
         self.playNext()
+
+    def launchPrefs(self):
+    	self.prefDialog.ui.launch()
+        # self.prefDialog = QDialog(self)
+        # self.prefDialog.ui = PrefsDialog(self)
+        # dialog.ui.setupUi(dialog)
+        # self.prefDialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.refreshUI()
+
+    def refreshUI(self):
+        if self.hermes.player.vlc.is_playing():
+            self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
+        else:
+            self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
+            image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
+            self.artView.setScaledContents(True)
+            self.artView.setPixmap(image.scaled(75,75))
+
+        self.nextButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/next.png")))
+        self.prevButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/prev.png")))
+
+        red, green, blue = self.theme.get_buttonColor()
+        print "Changing text color to: ", red, green, blue
+        self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
+
+        # self.prefDialog.ui.buttonColorLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
 # Main script
 app = QtGui.QApplication(sys.argv)
