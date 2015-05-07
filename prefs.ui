@@ -45,12 +45,61 @@
     <enum>QTabWidget::North</enum>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="generalPrefs">
     <attribute name="title">
      <string>General</string>
     </attribute>
+    <widget class="QListWidget" name="watchedList">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>31</y>
+       <width>365</width>
+       <height>191</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Watched Folders</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="addPath">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>229</y>
+       <width>80</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add Folder</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="removePath">
+     <property name="geometry">
+      <rect>
+       <x>4</x>
+       <y>229</y>
+       <width>111</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Remove Selected</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="themePrefs">
     <attribute name="title">

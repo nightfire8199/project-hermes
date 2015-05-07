@@ -68,10 +68,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
         self.theme = Theme("theme", self.hermes.user)
         self.buttonColor = QColor()
-        self.prefDialog = QDialog(self)
-        self.prefDialog.ui = PrefsDialog(self.theme, self)
-        self.prefDialog.ui.setupUi(self.prefDialog)
+        self.prefDialog = PrefsDialog(self.theme, self)
         self.refreshUI()
+
+        for path in self.hermes.user.watched:
+            self.prefDialog.watchedList.addItem(path)
 
         with open('dark.css', 'r') as content_file:
             appStyle = content_file.read()
@@ -308,9 +309,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playNext()
 
     def launchPrefs(self, tab = 0):
-        self.prefDialog.ui.tabWidget.setCurrentIndex(tab)
-        self.prefDialog.ui.launch()
-        # self.refreshUI()
+        self.prefDialog.tabWidget.setCurrentIndex(tab)
+        self.prefDialog.launch()
 
     def refreshUI(self):
         self.toNP.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))

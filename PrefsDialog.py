@@ -12,21 +12,40 @@ class PrefsDialog(QDialog, form_class):
         self.theme = theme
         self.setupUi(self)
         self.setModal(True)
+        self.buttonColorLabel.setText('')
         self.buttonColorButton.clicked.connect(self.buttonColorPicker)
+        self.addPath.clicked.connect(self.addWatched)
+        self.removePath.clicked.connect(self.removeWatched)
         self.load()
 
     def load(self):
         # self.theme.load() # done in ctor in Theme.py
         pass
 
+    def addWatched(self):
+        dialog = QFileDialog(self, "Select a directory to watch", )
+        dialog.setFileMode(QFileDialog.Directory)
+        dialog.exec_()
+
+        # dialog rejected
+        if dialog.result() != 1:
+            return
+
+        directory = dialog.directory().absolutePath()
+        added = self.parent.hermes.user.add_watched(directory)
+        if added:
+            self.watchedList.addItem(directory)
+
+    def removeWatched(self):
+        selected = self.watchedList.currentRow()
+        directory = str(self.watchedList.item(selected).text())
+        self.parent.hermes.user.remove_watched(directory)
+        self.watchedList.takeItem(selected)
+
     def refreshUI(self):
-        self.buttonColorLabel.setText('')
-        print self.buttonColorLabel.text()
         red, green, blue = self.theme.get_buttonColor()
-        # self.buttonColorLabel.setStyleSheet("background-color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
+        self.buttonColorLabel.setStyleSheet("background-color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
         print "Refreshing Prefs UI:", red, green, blue
-        self.buttonColorLabel.setStyleSheet("background-color: rgb(150, 0, 0, 80)")
-        # self.buttonColorLabel.setStyleSheet("background-color: rgba(200,200,200,200); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
     def launch(self):
         self.refreshUI()
@@ -43,7 +62,6 @@ class PrefsDialog(QDialog, form_class):
         color = colorDialog.selectedColor()
         self.theme.changeButtonColor(color.red(), color.green(), color.blue())
         self.parent.refreshUI()
-        print "ref>>>>>>"
         self.refreshUI()
 
 
