@@ -12,306 +12,227 @@ import getpass
 import base64
 import pickle
 
+
 class User:
-	
-	def __init__(self):
-		self.library = []
-		self.G_username = ""
-		self.G_password = ""
-		self.S_username = ""
-		self.S_password = ""
-		self.GOOGLE_DEVICE_ID = ""
-		self.SOUNDCLOUD_CLIENT_ID = ""
-		self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
-		self.enc_key = "private_key"
+    def __init__(self):
+        self.G_username = ""
+        self.G_password = ""
+        self.S_username = ""
+        self.S_password = ""
+        self.GOOGLE_DEVICE_ID = ""
+        self.SOUNDCLOUD_CLIENT_ID = ""
+        self.SOUNDCLOUD_CLIENT_SECRET_ID = ""
+        self.enc_key = "private_key"
 
-		self.playlists = []
+        self.playlists = []
 
-		if(len(sys.argv) >= 2):
-			try:
-				File = open(self.get_filename(str(sys.argv[1])))
-			except IOError:
-				print 'Cannot find user: ' + str(sys.argv[1])
-				print 'Creating new user...'
-				self.authenticate(self.get_filename())
-			else:
-				self.login(self.get_filename(str(sys.argv[1])))
-		else:
-			self.authenticate(self.get_filename())
+        self.watched = []
 
-		if not path.exists(self.userdata_path):
-			os.mkdir(self.userdata_path)
+        if len(sys.argv) >= 2:
+            try:
+                File = open(self.get_filename(str(sys.argv[1])))
+            except IOError:
+                print 'Cannot find user: ' + str(sys.argv[1])
+                print 'Creating new user...'
+                self.authenticate(self.get_filename())
+            else:
+                self.login(self.get_filename(str(sys.argv[1])))
+        else:
+            self.authenticate(self.get_filename())
 
-		self.db_path = path.join(self.userdata_path, self.profile_name+'_db')
-		self.db = sqlite3.connect(self.db_path)
-		self.cursor = self.db.cursor()
+        if not path.exists(self.userdata_path):
+            os.mkdir(self.userdata_path)
 
-		self.watched_file = path.join(self.userdata_path, self.profile_name+"_watched")
+        self.db_path = path.join(self.userdata_path, self.profile_name + '_db')
+        self.db = sqlite3.connect(self.db_path)
+        self.cursor = self.db.cursor()
 
-		self.watched = []
-		if not path.exists(self.watched_file):
-			#print "no watched file"
-			open(self.watched_file, 'w').close()
+        self.watched_file = path.join(self.userdata_path, self.profile_name + "_watched")
 
-		if os.stat(self.watched_file).st_size > 0:
-			file = open(self.watched_file, 'r')
-			self.watched = pickle.load(file)
-			file.close()
+        if not path.exists(self.watched_file):
+            # print "no watched file"
+            open(self.watched_file, 'w').close()
 
-		for file in os.listdir(self.userdata_path):
-			if file.startswith("playlist_"):
-				#print "Adding playlist " , file
-				playlist = Playlist(file, self)
-				self.playlists.append(playlist)
+        if os.stat(self.watched_file).st_size > 0:
+            filer = open(self.watched_file, 'r')
+            self.watched = pickle.load(filer)
+            filer.close()
 
-	def add_watched(self, path):
-		self.watched.append(path)
-		file = open(self.watched_file, 'w')
-		pickle.dump(self.watched, file)
-		file.close()
+        for filer in os.listdir(self.userdata_path):
+            if filer.startswith("playlist_"):
+                #print "Adding playlist " , file
+                playlist = Playlist(filer, self)
+                self.playlists.append(playlist)
 
-	def encode(self, key, clear):
-	    enc = []
-	    for i in range(len(clear)):
-	        key_c = key[i % len(key)]
-	        enc_c = chr((ord(clear[i]) + ord(key_c)) % 256)
-	        enc.append(enc_c)
-	    return base64.urlsafe_b64encode("".join(enc))
+    def get_filename(self, arg=None):  # Currently based off Arguments
+        if arg is None:
+            arg = raw_input('Choose a user profile filename: ')
+        self.profile_name = arg
+        self.userdata_path = path.join('..', 'hermes-userdata', arg)
+        if not path.exists(self.userdata_path):
+            os.mkdir(self.userdata_path)
 
-	def decode(self, key, enc):
-	    dec = []
-	    enc = base64.urlsafe_b64decode(enc)
-	    for i in range(len(enc)):
-	        key_c = key[i % len(key)]
-	        dec_c = chr((256 + ord(enc[i]) - ord(key_c)) % 256)
-	        dec.append(dec_c)
-	    return "".join(dec)
+        return path.join(self.userdata_path, arg)
 
-	def get_filename(self, arg=None):
-		if arg is None:
-			arg = raw_input('Choose a user profile filename: ')
-		self.profile_name = arg
-		self.userdata_path = path.join('..', 'hermes-userdata', arg)
-		if not path.exists(self.userdata_path):
-			os.mkdir(self.userdata_path)
+    def encode(self, key, clear):
+        enc = []
+        for i in range(len(clear)):
+            key_c = key[i % len(key)]
+            enc_c = chr((ord(clear[i]) + ord(key_c)) % 256)
+            enc.append(enc_c)
+        return base64.urlsafe_b64encode("".join(enc))
 
-		return path.join(self.userdata_path, arg)
+    def decode(self, key, enc):
+        dec = []
+        enc = base64.urlsafe_b64decode(enc)
+        for i in range(len(enc)):
+            key_c = key[i % len(key)]
+            dec_c = chr((256 + ord(enc[i]) - ord(key_c)) % 256)
+            dec.append(dec_c)
+        return "".join(dec)
 
-	def add_playlist(self, name):
-		self.playlists.append(Playlist("playlist_"+name, self))
+    def authenticate(self, USER_DATA_FILENAME):
+        self.G_username = raw_input("Google Play Account Email: ")
+        self.G_password = getpass.getpass("Google Play Account Pass: ")
 
-	def get_playlist(self, name):
-		for item in self.playlists:
-			if item.title == "playlist_"+name:
-				return item
+        Deviceclient = Webclient()
+        Deviceclient.login(self.G_username, self.G_password)
 
-	def print_playlist(self, name):
-		for item in self.playlists:
-			if item.title == "playlist_"+name:
-				for track in item.items:
-					self.cursor.execute("SELECT artist, title FROM tracks WHERE id LIKE ?", (track.id,))
-					result = self.cursor.fetchone()
-					print result[0].encode("utf-8"), " - ", result[1].encode("utf-8")
+        DList = Deviceclient.get_registered_devices()
 
-	def print_playlists(self):
-		print "\n...Playlists..............."
-		for playlist in self.playlists:
-			print "    ", playlist.title[9:]
+        for device in DList:
+            if device['type'] == "PHONE":
+                self.GOOGLE_DEVICE_ID = device["id"]
+                if self.GOOGLE_DEVICE_ID[:2] == '0x':
+                    self.GOOGLE_DEVICE_ID = self.GOOGLE_DEVICE_ID[2:]
+                break
 
-	# def remove_playlist(self, name):
-	# 	self.playlists.append(Playlist(name, self))
+        self.S_username = raw_input("Soundcloud Account Username: ")
+        self.S_password = getpass.getpass("Soundcloud Account Password: ")
+        self.SOUNDCLOUD_CLIENT_ID = raw_input("Soundcloud Client ID: ")
+        self.SOUNDCLOUD_CLIENT_SECRET_ID = raw_input("Soundcloud Secret Client ID: ")
 
+        File = open(USER_DATA_FILENAME, 'w+')
+        File.write(self.encode(self.enc_key, self.G_username) + '\n')
+        File.write(self.encode(self.enc_key, self.G_password) + '\n')
+        File.write(self.encode(self.enc_key, self.S_username) + '\n')
+        File.write(self.encode(self.enc_key, self.S_password) + '\n')
+        File.write(self.GOOGLE_DEVICE_ID + '\n')
+        File.write(self.SOUNDCLOUD_CLIENT_ID + '\n')
+        File.write(self.SOUNDCLOUD_CLIENT_SECRET_ID + '\n')
+        File.close()
 
-	def sync(self, client):
-		#self.cursor.execute('''DROP TABLE IF EXISTS tracks''')
+    def login(self, USER_DATA_FILENAME):
+        File = open(USER_DATA_FILENAME, 'r')
+        self.G_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
+        self.G_password = self.decode(self.enc_key, File.readline().rstrip('\n'))
+        self.S_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
+        self.S_password = self.decode(self.enc_key, File.readline().rstrip('\n'))
+        self.GOOGLE_DEVICE_ID = File.readline().rstrip('\n')
+        self.SOUNDCLOUD_CLIENT_ID = File.readline().rstrip('\n')
+        self.SOUNDCLOUD_CLIENT_SECRET_ID = File.readline().rstrip('\n')
+        File.close()
 
-		L_list = []
-		for path in self.watched:
-			filelist = []
-			for (dirpath, dirnames, filenames) in os.walk(path):
-    				filelist.extend(dirpath + '/' + filename for filename in filenames)
-			L_list += filelist	
+    def library_get(self, distinct, get_others, where_like, ordered_return, USI, single=False, db='tracks'):
+        query = 'SELECT DISTINCT(' + distinct + ')'
+        for item in get_others:
+            query += ', ' + item
+        query += ' FROM ' + db + ' WHERE ' + where_like + ' LIKE ? OR ' + where_like + ' LIKE ?'
+        if len(ordered_return) > 0:
+            query += ' ORDER BY '
+            for item in ordered_return:
+                query += item + ', '
+            query = query[:len(query) - 2]
+        self.cursor.execute(query, (USI + '%', '% ' + USI + '%',))
+        if single is False:
+            return self.cursor.fetchall()
+        else:
+            return self.cursor.fetchone()
 
-		for File in L_list:
-			if not (File.endswith('mp3') or File.endswith('wav')):
-				L_list.remove(File)
+    def sync(self, client):
+        L_list = []
+        for path in self.watched:
+            filelist = []
+            for (dirpath, dirnames, filenames) in os.walk(path):
+                filelist.extend(dirpath + '/' + filename for filename in filenames)
+            L_list += filelist
 
-		G_list = client.G_client.get_all_songs()	
+        for File in L_list:
+            if not (File.endswith('mp3') or File.endswith('wav')):
+                L_list.remove(File)
 
-		Fav_Size = 0
-		S_list = client.S_client.get('/me/favorites', limit=300)
-		while Fav_Size != len(S_list):
-			Fav_Size = len(S_list)
-			S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
+        G_list = client.G_client.get_all_songs()
 
-		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum INTEGER, art TExT)
-		''')
-		self.cursor.execute('''SELECT count(*) FROM tracks''')
-		iden = self.cursor.fetchone()[0]
-		for track in G_list:
-			art = ''
-			try:
-				art = track['albumArtRef'][0]['url']
-			except KeyError:
-				art = ''
-			self.cursor.execute('''
-				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-				''', (iden, track['title'], track['album'], track['artist'], 'G', 'G_' + str(track['id']), track['trackNumber'], art))
-			iden+=1
+        Fav_Size = 0
+        S_list = client.S_client.get('/me/favorites', limit=300)
+        while Fav_Size != len(S_list):
+            Fav_Size = len(S_list)
+            S_list += client.S_client.get('/me/favorites', limit=300, offset=len(S_list))
 
-		for track in S_list:
-			self.cursor.execute('''
-				INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-				''', (iden, track.title, "Unknown Album", track.user['username'], 'S', 'S_' + str(track.id), 0, track.artwork_url))
-			iden+=1
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS tracks(id INTEGER PRIMARY KEY, title TEXT, album TEXT, artist TEXT, location TEXT, streamid TEXT UNIQUE, tracknum INTEGER, art TExT)''')
+        self.cursor.execute('''SELECT count(*) FROM tracks''')
+        iden = self.cursor.fetchone()[0]
+        for track in G_list:
+            art = ''
+            try:
+                art = track['albumArtRef'][0]['url']
+            except KeyError:
+                art = ''
+            self.cursor.execute('''INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)''',
+                                (iden, track['title'], track['album'], track['artist'], 'G', 'G_' + str(track['id']), track['trackNumber'], art))
+            iden += 1
 
-		for track in L_list:
-			tag = eyeD3.Tag()
-			tag.link(track)
-			if len(tag.getArtist()) and len(tag.getAlbum()) and len(tag.getTitle()) > 0:
-				self.cursor.execute('''
-					INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-					''', (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', 'L_' + str(track), tag.track_num[0], ''))
-				iden+=1
-			else:
-				print "Could not resolve track metadata for: " + track
+        for track in S_list:
+            self.cursor.execute('''INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)''',
+                                (iden, track.title, "Unknown Album", track.user['username'], 'S', 'S_' + str(track.id), 0, track.artwork_url))
+            iden += 1
 
-		self.db.commit()
+        for track in L_list:
+            tag = eyeD3.Tag()
+            tag.link(track)
+            if len(tag.getArtist()) and len(tag.getAlbum()) and len(tag.getTitle()) > 0:
+                self.cursor.execute('''INSERT OR IGNORE INTO tracks VALUES(?, ?, ?, ?, ?, ?, ?, ?)''',
+                                    (iden, tag.getTitle(), tag.getAlbum(), tag.getArtist(), 'L', 'L_' + str(track), tag.track_num[0], ''))
+                iden += 1
+            else:
+                print "Could not resolve track metadata for: " + track
 
-	def sync_stream(self,client,player):
-		self.cursor.execute('''DROP TABLE IF EXISTS stream''')
-		self.db.commit()
+        self.db.commit()
 
-		tracks = client.S_client.get('/me/activities/tracks/affiliated', limit = 200)
-		
-		self.cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS stream(id INTEGER PRIMARY KEY, title TEXT, album TEXT,artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER, art TEXT)
-		''')
+    def sync_stream(self, client):
+        self.cursor.execute('''DROP TABLE IF EXISTS stream''')
+        self.db.commit()
 
-		iden = 0
-		duplifier = []
-		for track in tracks.obj['collection']:
-			if track['origin']['id'] in duplifier:
-				continue
-			if track['origin']['kind'] == 'playlist':
-				
-				Playtracks = client.S_client.get('/playlists/99297471/tracks')
-				for play in Playtracks:
-					if play.id in duplifier:
-						continue
-					self.cursor.execute('''
-						INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-						''', (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0, play.artwork_url) )
-					self.db.commit()
-					player.add(iden,'S_' + str(play.id),'S')
+        tracks = client.S_client.get('/me/activities/tracks/affiliated', limit=200)
 
-					duplifier.append(play.id)
-					duplifier.append(track['origin']['id'])
-					iden +=1	
-			else:
-				self.cursor.execute('''
-					INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-					''', (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 'S', 'S_'+ str(track['origin']['id']), 0, track['origin']['artwork_url']))
-				self.db.commit()				
-				player.add(iden,'S_' + str(track['origin']['id']),'S')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS stream(id INTEGER PRIMARY KEY, title TEXT, album TEXT,artist TEXT, location TEXT, streamid TEXT, tracknum INTEGER, art TEXT)''')
 
-				duplifier.append(track['origin']['id'])
-				iden+=1
-			if iden == 50:
-				break
+        iden = 0
+        duplifier = []
+        for track in tracks.obj['collection']:
+            if track['origin']['id'] in duplifier:
+                continue
+            if track['origin']['kind'] == 'playlist':
 
-		self.db.commit()
+                Playtracks = client.S_client.get('/playlists/99297471/tracks')
+                for play in Playtracks:
+                    if play.id in duplifier:
+                        continue
+                    self.cursor.execute('''INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?, ?)''',
+                                        (iden, play.title, "Unknown Album", play.user['username'], 'S', 'S_' + str(play.id), 0, play.artwork_url))
+                    self.db.commit()
 
-	def login(self,USER_DATA_FILENAME):
-		File = open(USER_DATA_FILENAME,'r')
-		self.G_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
-		self.G_password = self.decode(self.enc_key, File.readline().rstrip('\n'))
-		self.S_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
-		self.S_password = self.decode(self.enc_key, File.readline().rstrip('\n'))
-		self.GOOGLE_DEVICE_ID = File.readline().rstrip('\n')
-		self.SOUNDCLOUD_CLIENT_ID = File.readline().rstrip('\n')
-		self.SOUNDCLOUD_CLIENT_SECRET_ID = File.readline().rstrip('\n')
-		File.close()
+                    duplifier.append(play.id)
+                    duplifier.append(track['origin']['id'])
+                    iden += 1
+            else:
+                self.cursor.execute('''INSERT OR IGNORE INTO stream VALUES(?, ?, ?, ?, ?, ?, ?, ?)''',
+                                    (iden, track['origin']['title'], "Unknown Album", track['origin']['user']['username'], 's', 's_' + str(track['origin']['id']), 0, track['origin']['artwork_url']))
+                self.db.commit()
 
-	def library_get(self, distinct, get_others, where_like, ordered_return, USI, single = False):
-		query = 'SELECT DISTINCT(' + distinct + ')'
-		for item in get_others:
-			query += ', ' + item
-		query += ' FROM tracks WHERE ' + where_like + ' LIKE ? OR ' + where_like +' LIKE ?'
-		if len(ordered_return) > 0:		
-			query += ' ORDER BY '
-			for item in ordered_return:
-				query += item + ', '
-			query = query[:len(query)-2]
-		self.cursor.execute(query, (USI+'%', '% '+USI+'%',))
-		if single == False:
-			return self.cursor.fetchall()
-		else:
-			return self.cursor.fetchone()
+                duplifier.append(track['origin']['id'])
+                iden += 1
+            if iden == 50:
+                break
 
-	def library_get_exact(self, distinct, get_others, where_like, ordered_return, USI, single = False):
-		query = 'SELECT DISTINCT(' + distinct + ')'
-		for item in get_others:
-			query += ', ' + item
-		query += ' FROM tracks WHERE ' + where_like + ' = ?'
-		if len(ordered_return) > 0:		
-			query += ' ORDER BY '
-			for item in ordered_return:
-				query += item + ', '
-			query = query[:len(query)-2]
-		self.cursor.execute(query, (USI,))
-		if single == False:
-			return self.cursor.fetchall()
-		else:
-			return self.cursor.fetchone()
-
-	def stream_get(self, distinct, get_others, where_like, ordered_return, USI, single = False):
-		query = 'SELECT DISTINCT(' + distinct + ')'
-		for item in get_others:
-			query += ', ' + item
-		query += ' FROM stream WHERE ' + where_like + ' LIKE ? OR ' + where_like +' LIKE ?'
-		if len(ordered_return) > 0:		
-			query += ' ORDER BY '
-			for item in ordered_return:
-				query += item + ', '
-			query = query[:len(query)-2]
-		self.cursor.execute(query, (USI+'%', '% '+USI+'%',))
-		if single == False:
-			return self.cursor.fetchall()
-		else:
-			return self.cursor.fetchone()
-
-	def authenticate(self,USER_DATA_FILENAME):
-		self.G_username = raw_input("Google Play Account Email: ")
-		self.G_password = getpass.getpass("Google Play Account Pass: ")
-
-		Deviceclient = Webclient()
-		Deviceclient.login(self.G_username,self.G_password)
-
-		DList = Deviceclient.get_registered_devices()	
-
-		for device in DList:	
-			if device['type'] == "PHONE":
-				self.GOOGLE_DEVICE_ID = device["id"]
-				if self.GOOGLE_DEVICE_ID[:2] == '0x':
-					self.GOOGLE_DEVICE_ID = self.GOOGLE_DEVICE_ID[2:]
-				break
-
-		self.S_username = raw_input("Soundcloud Account Username: ")
-		self.S_password = getpass.getpass("Soundcloud Account Password: ")
-		self.SOUNDCLOUD_CLIENT_ID = raw_input("Soundcloud Client ID: ")
-		self.SOUNDCLOUD_CLIENT_SECRET_ID = raw_input("Soundcloud Secret Client ID: ")
-
-		File = open(USER_DATA_FILENAME,'w+')
-		File.write(self.encode(self.enc_key, self.G_username) + '\n')
-		File.write(self.encode(self.enc_key, self.G_password) + '\n')
-		File.write(self.encode(self.enc_key, self.S_username) + '\n')
-		File.write(self.encode(self.enc_key, self.S_password) + '\n')
-		File.write(self.GOOGLE_DEVICE_ID + '\n')
-		File.write(self.SOUNDCLOUD_CLIENT_ID + '\n')
-		File.write(self.SOUNDCLOUD_CLIENT_SECRET_ID + '\n')
-		File.close()
-
-	def get_command(self,_command):
-		pass
+        self.db.commit()

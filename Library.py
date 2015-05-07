@@ -6,7 +6,6 @@ from os import path
 
 
 class Playlist(Shelver):
-
     def __init__(self, title, user):
         # Shelver.__init__(title, user)
         super(Playlist, self).__init__(title, user)
