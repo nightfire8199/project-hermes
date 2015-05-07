@@ -2,12 +2,10 @@ from User import *
 from ClientHandler import *
 from Player import *
 
-import threading
-
 
 class Hermes:
-    def __init__(self):
-        self.user = User()
+    def __init__(self, username):
+        self.user = User(username)
         self.client = ClientHandler(self.user)
         self.player = Player()
 

@@ -15,6 +15,7 @@ Install Dependencies::
 	$ pip install soundcloud
 	$ pip install gmusicapi
 	$ pip install pyopenssl ndg-httpsclient pyasn1
+	$ pip install urllib3
 	$ pip install eyeD3-pip
 	$ pip install pillow
 	$ pip install numpy

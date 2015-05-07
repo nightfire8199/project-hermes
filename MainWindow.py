@@ -30,7 +30,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
 
-        self.hermes = Hermes()
+        if len(sys.argv) < 2:
+            print "Error: no username found"
+            print "Usage: python MainWindow.py <username>"
+            exit()
+
+        username = str(sys.argv[1])
+        self.hermes = Hermes(username)
 
         self.initializeLayout()
         self.createActions()
@@ -50,6 +56,9 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.prefsAction = QtGui.QAction('&Preferences', self)
         self.prefsAction.setShortcut('Ctrl+P')
         self.prefsAction.setStatusTip('Customize Hermes')
+        self.playlistAction = QtGui.QAction('&New Playlist', self)
+        self.playlistAction.setShortcut('Ctrl+N')
+        self.playlistAction.setStatusTip('Create a new playlist')
 
         self.statusBar()
 
@@ -105,10 +114,12 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.prefsAction.triggered.connect(self.launchPrefs)
         self.toNP.clicked.connect(self.showNP)
         self.toLIB.clicked.connect(self.showLIB)
+        self.playlistAction.triggered.connect(self.createPlaylist)
 
     def addMenu(self):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(self.playlistAction)
         fileMenu.addAction(self.quitAction)
         toolMenu = menubar.addMenu('&Tools')
         toolMenu.addAction(self.syncAction)
@@ -120,6 +131,19 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def sync(self):
         self.hermes.sync()
+
+    def createPlaylist(self):
+        dialog = QtGui.QInputDialog(self)
+        dialog.setWindowTitle("Create Playlist")
+        dialog.setLabelText("Enter playlist name:")
+        dialog.exec_()
+
+        if dialog.result() != 1: # dialog rejected
+            return
+
+        title = 'playlist_'+str(dialog.textValue())
+        playlist = Playlist(title, self.hermes.user)
+        self.hermes.user.playlists.append(playlist)
 
     def getStream(self):
         tracks = self.hermes.syncStream()
@@ -283,9 +307,10 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.updateTracker)
         self.playNext()
 
-    def launchPrefs(self):
+    def launchPrefs(self, tab = 0):
+        self.prefDialog.ui.tabWidget.setCurrentIndex(tab)
         self.prefDialog.ui.launch()
-        self.refreshUI()
+        # self.refreshUI()
 
     def refreshUI(self):
         self.toNP.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))

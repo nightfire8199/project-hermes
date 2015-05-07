@@ -14,8 +14,7 @@ import pickle
 
 
 class User:
-
-    def __init__(self):
+    def __init__(self, username):
         self.G_username = ""
         self.G_password = ""
         self.S_username = ""
@@ -29,17 +28,20 @@ class User:
 
         self.watched = []
 
-        if len(sys.argv) >= 2:
-            try:
-                File = open(self.get_filename(str(sys.argv[1])))
-            except IOError:
-                print 'Cannot find user: ' + str(sys.argv[1])
-                print 'Creating new user...'
-                self.authenticate(self.get_filename())
-            else:
-                self.login(self.get_filename(str(sys.argv[1])))
-        else:
-            self.authenticate(self.get_filename())
+        # if len(sys.argv) >= 2:
+        #     try:
+        #         File = open(self.get_filename(str(sys.argv[1])))
+        #     except IOError:
+        #         print 'Cannot find user: ' + str(sys.argv[1])
+        #         print 'Creating new user...'
+        #         self.authenticate(self.get_filename())
+        #     else:
+        #         self.login(self.get_filename(str(sys.argv[1])))
+        # else:
+        #     self.authenticate(self.get_filename())
+
+        File = open(self.get_filename(username))
+        self.login(self.get_filename(username))
 
         if not path.exists(self.userdata_path):
             os.mkdir(self.userdata_path)
@@ -123,10 +125,6 @@ class User:
         File.write(self.SOUNDCLOUD_CLIENT_SECRET_ID + '\n')
         File.close()
 
-    def dbConnect(self):
-        self.db = sqlite3.connect(self.db_path)
-        self.cursor = self.db.cursor()
-
     def login(self, USER_DATA_FILENAME):
         File = open(USER_DATA_FILENAME, 'r')
         self.G_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
@@ -155,7 +153,6 @@ class User:
             return self.cursor.fetchone()
 
     def sync(self, client):
-
         L_list = []
         for path in self.watched:
             filelist = []
