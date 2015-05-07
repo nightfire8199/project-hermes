@@ -239,21 +239,3 @@ class User:
                 break
 
         self.db.commit()
-
-    def add_watched(self, directory):
-        # already there
-        if directory in self.watched:
-            return False
-
-        self.watched.append(directory)
-        self.save_watched()
-        return True
-
-    def remove_watched(self, directory):
-        self.watched.remove(directory)
-        self.save_watched()
-
-    def save_watched(self):
-        filer = open(self.watched_file, 'w')
-        pickle.dump(self.watched, filer)
-        filer.close()
