@@ -14,6 +14,7 @@ import pickle
 
 
 class User:
+
     def __init__(self):
         self.G_username = ""
         self.G_password = ""
@@ -122,6 +123,10 @@ class User:
         File.write(self.SOUNDCLOUD_CLIENT_SECRET_ID + '\n')
         File.close()
 
+    def dbConnect(self):
+        self.db = sqlite3.connect(self.db_path)
+        self.cursor = self.db.cursor()
+
     def login(self, USER_DATA_FILENAME):
         File = open(USER_DATA_FILENAME, 'r')
         self.G_username = self.decode(self.enc_key, File.readline().rstrip('\n'))
@@ -150,6 +155,7 @@ class User:
             return self.cursor.fetchone()
 
     def sync(self, client):
+
         L_list = []
         for path in self.watched:
             filelist = []
