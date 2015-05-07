@@ -554,7 +554,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page">
          <property name="sizePolicy">
@@ -747,7 +747,20 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="searchResults_Art"/>
+             <widget class="QListWidget" name="searchResults_Art">
+              <property name="movement">
+               <enum>QListView::Snap</enum>
+              </property>
+              <property name="flow">
+               <enum>QListView::TopToBottom</enum>
+              </property>
+              <property name="isWrapping" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="viewMode">
+               <enum>QListView::IconMode</enum>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_3">
@@ -757,7 +770,17 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="searchResults_Alb"/>
+             <widget class="QListWidget" name="searchResults_Alb">
+              <property name="movement">
+               <enum>QListView::Snap</enum>
+              </property>
+              <property name="flow">
+               <enum>QListView::TopToBottom</enum>
+              </property>
+              <property name="viewMode">
+               <enum>QListView::IconMode</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>

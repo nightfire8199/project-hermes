@@ -74,7 +74,11 @@ class ArtistItem(QtGui.QListWidgetItem):
     def __init__(self, other, parent=None):
         super(ArtistItem, self).__init__(parent)
         self.artist = str(other[0].encode("utf-8"))
-        self.setText(self.artist)
+        self.art = QtGui.QPixmap(QtCore.QString('assets/buttons/group.png'))
+        artistlabl = self.artist
+        if len(self.artist) >= 16:
+            artistlabl = self.artist[:13]+'...'
+        self.setText(artistlabl)
 
     @classmethod
     def copyCtor(this, copy):
@@ -89,7 +93,18 @@ class AlbumItem(QtGui.QListWidgetItem):
         super(AlbumItem, self).__init__(parent)
         self.artist = str(other[1].encode("utf-8"))
         self.album = str(other[0].encode("utf-8"))
-        self.setText(self.album + "   -   " + self.artist)
+        self.art = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
+        if not (other[2] == '' or isinstance(other[2], types.NoneType)):
+            data = urllib3.PoolManager().request("GET", str(other[2].encode("utf-8")))
+            self.art = QtGui.QPixmap()
+            self.art.loadFromData(data.data)
+        albumlabl = self.album
+        artistlabl = self.artist
+        if len(self.album) >= 16:
+            albumlabl = self.album[:13]+'...'
+        if len(self.artist) >= 16:
+            artistlabl = self.artist[:13]+'...'
+        self.setText(albumlabl + "\n" + artistlabl)
 
     @classmethod
     def copyCtor(this, copy):

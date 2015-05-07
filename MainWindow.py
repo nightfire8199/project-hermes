@@ -77,6 +77,9 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setText('')
         self.nowPlaying.setIconSize(QtCore.QSize(75, 75))
 
+        self.searchResults_Alb.setIconSize(QtCore.QSize(75, 75))
+        self.searchResults_Art.setIconSize(QtCore.QSize(75, 75))
+
         image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
         self.artView.setScaledContents(True)
         self.artView.setPixmap(image.scaled(75, 75))
@@ -159,10 +162,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchResults_Art.clear()
 
         for album in albums:
-            self.searchResults_Alb.addItem(AlbumItem(album))
+            newAlbum = AlbumItem(album)
+            newAlbum.setIcon(QtGui.QIcon(newAlbum.art))
+            self.searchResults_Alb.addItem(newAlbum)
             QtGui.QApplication.processEvents()
         for artist in artists:
-            self.searchResults_Art.addItem(ArtistItem(artist))
+            newArtist = ArtistItem(artist)
+            newArtist.setIcon(QtGui.QIcon(newArtist.art))
+            self.searchResults_Art.addItem(newArtist)
             QtGui.QApplication.processEvents()
         for song in tracks:
             newItem = SearchSongItem(song)
