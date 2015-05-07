@@ -1,5 +1,5 @@
 from gmusicapi import Webclient
-from Playlist import *
+from Library import *
 import soundcloud
 
 import eyeD3
@@ -14,7 +14,7 @@ import pickle
 
 
 class User:
-    def __init__(self):
+    def __init__(self, username):
         self.G_username = ""
         self.G_password = ""
         self.S_username = ""
@@ -28,17 +28,20 @@ class User:
 
         self.watched = []
 
-        if len(sys.argv) >= 2:
-            try:
-                File = open(self.get_filename(str(sys.argv[1])))
-            except IOError:
-                print 'Cannot find user: ' + str(sys.argv[1])
-                print 'Creating new user...'
-                self.authenticate(self.get_filename())
-            else:
-                self.login(self.get_filename(str(sys.argv[1])))
-        else:
-            self.authenticate(self.get_filename())
+        # if len(sys.argv) >= 2:
+        #     try:
+        #         File = open(self.get_filename(str(sys.argv[1])))
+        #     except IOError:
+        #         print 'Cannot find user: ' + str(sys.argv[1])
+        #         print 'Creating new user...'
+        #         self.authenticate(self.get_filename())
+        #     else:
+        #         self.login(self.get_filename(str(sys.argv[1])))
+        # else:
+        #     self.authenticate(self.get_filename())
+
+        File = open(self.get_filename(username))
+        self.login(self.get_filename(username))
 
         if not path.exists(self.userdata_path):
             os.mkdir(self.userdata_path)

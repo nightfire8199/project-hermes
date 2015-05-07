@@ -30,7 +30,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
 
-        self.hermes = Hermes()
+        if len(sys.argv) < 2:
+            print "Error: no username found"
+            print "Usage: python MainWindow.py <username>"
+            exit()
+
+        username = str(sys.argv[1])
+        self.hermes = Hermes(username)
 
         self.initializeLayout()
         self.createActions()
@@ -47,13 +53,18 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.syncAction = QtGui.QAction('&Sync', self)
         self.syncAction.setShortcut('Ctrl+S')
         self.syncAction.setStatusTip('Sync Library')
-        self.prefsAction = QtGui.QAction('&Preferences', self)  
-        self.prefsAction.setShortcut('Ctrl+P')     
+        self.prefsAction = QtGui.QAction('&Preferences', self)
+        self.prefsAction.setShortcut('Ctrl+P')
         self.prefsAction.setStatusTip('Customize Hermes')
+        self.playlistAction = QtGui.QAction('&New Playlist', self)
+        self.playlistAction.setShortcut('Ctrl+N')
+        self.playlistAction.setStatusTip('Create a new playlist')
 
         self.statusBar()
 
     def initializeLayout(self):
+        self.toNP.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.toLIB.setStyleSheet("background-color: rgba(0,0,0,0)")
 
         self.theme = Theme("theme", self.hermes.user)
         self.buttonColor = QColor()
@@ -62,7 +73,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.prefDialog.ui.setupUi(self.prefDialog)
         self.refreshUI()
 
-        with open('light.css', 'r') as content_file:
+        with open('dark.css', 'r') as content_file:
             appStyle = content_file.read()
         self.setStyleSheet(appStyle)
 
@@ -75,10 +86,12 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setText('')
         self.nowPlaying.setIconSize(QtCore.QSize(75, 75))
 
-        image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+        self.searchResults_Alb.setIconSize(QtCore.QSize(75, 75))
+        self.searchResults_Art.setIconSize(QtCore.QSize(75, 75))
+
+        image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
         self.artView.setScaledContents(True)
         self.artView.setPixmap(image.scaled(75, 75))
-
 
     def connectActions(self):
         self.quitAction.triggered.connect(self.quitApp)
@@ -93,16 +106,20 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.nowPlaying.itemDoubleClicked.connect(self.playCurrent)
         self.syncAction.triggered.connect(self.sync)
         self.addButton.clicked.connect(self.addToQueue)
-	self.trackSlider.sliderReleased.connect(self.setTime)
+        self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
         self.streamButton.clicked.connect(self.getStream)
         self.likeButton.clicked.connect(self.like)
         self.getArt.connect(self.setAlbumArt)
         self.prefsAction.triggered.connect(self.launchPrefs)
+        self.toNP.clicked.connect(self.showNP)
+        self.toLIB.clicked.connect(self.showLIB)
+        self.playlistAction.triggered.connect(self.createPlaylist)
 
     def addMenu(self):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(self.playlistAction)
         fileMenu.addAction(self.quitAction)
         toolMenu = menubar.addMenu('&Tools')
         toolMenu.addAction(self.syncAction)
@@ -114,6 +131,19 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def sync(self):
         self.hermes.sync()
+
+    def createPlaylist(self):
+        dialog = QtGui.QInputDialog(self)
+        dialog.setWindowTitle("Create Playlist")
+        dialog.setLabelText("Enter playlist name:")
+        dialog.exec_()
+
+        if dialog.result() != 1: # dialog rejected
+            return
+
+        title = 'playlist_'+str(dialog.textValue())
+        playlist = Playlist(title, self.hermes.user)
+        self.hermes.user.playlists.append(playlist)
 
     def getStream(self):
         tracks = self.hermes.syncStream()
@@ -142,7 +172,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.hermes.player.vlc.stop()
         self.likeButton.hide()
         self.playingLabel.setText('')
-        image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+        image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
         self.artView.setScaledContents(True)
         self.artView.setPixmap(image.scaled(75, 75))
         self.trackSlider.setValue(0)
@@ -156,10 +186,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchResults_Art.clear()
 
         for album in albums:
-            self.searchResults_Alb.addItem(AlbumItem(album))
+            newAlbum = AlbumItem(album)
+            newAlbum.setIcon(QtGui.QIcon(newAlbum.art))
+            self.searchResults_Alb.addItem(newAlbum)
             QtGui.QApplication.processEvents()
         for artist in artists:
-            self.searchResults_Art.addItem(ArtistItem(artist))
+            newArtist = ArtistItem(artist)
+            newArtist.setIcon(QtGui.QIcon(newArtist.art))
+            self.searchResults_Art.addItem(newArtist)
             QtGui.QApplication.processEvents()
         for song in tracks:
             newItem = SearchSongItem(song)
@@ -194,11 +228,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playTrack(self.nowPlaying.currentItem())
 
     def setToPause(self):
-        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/pause_nofill_white.png")))
+        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
         self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 
     def setToPlay(self):
-        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/play_fill_white.png")))
+        self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/play_fill.png")))
         self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 
     def playpause(self):
@@ -215,7 +249,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         else:
             self.setToPlay()
             self.playingLabel.setText('')
-            image = QtGui.QPixmap(QtCore.QString('assets/record.png'))
+            image = QtGui.QPixmap(QtCore.QString('assets/buttons/record.png'))
             self.artView.setScaledContents(True)
             self.artView.setPixmap(image.scaled(75, 75))
 
@@ -273,15 +307,15 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.updateTracker)
         self.playNext()
 
-    def launchPrefs(self):
-    	self.prefDialog.ui.launch()
-        # self.prefDialog = QDialog(self)
-        # self.prefDialog.ui = PrefsDialog(self)
-        # dialog.ui.setupUi(dialog)
-        # self.prefDialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.refreshUI()
+    def launchPrefs(self, tab = 0):
+        self.prefDialog.ui.tabWidget.setCurrentIndex(tab)
+        self.prefDialog.ui.launch()
+        # self.refreshUI()
 
     def refreshUI(self):
+        self.toNP.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))
+        self.toLIB.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/search.png")))
+
         if self.hermes.player.vlc.is_playing():
             self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
         else:
@@ -298,6 +332,12 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
         # self.prefDialog.ui.buttonColorLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
+
+    def showNP(self):
+        self.stack.setCurrentIndex(0)
+
+    def showLIB(self):
+        self.stack.setCurrentIndex(1)
 
 # Main script
 app = QtGui.QApplication(sys.argv)

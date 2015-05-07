@@ -2,9 +2,10 @@ from User import *
 from ClientHandler import *
 from Player import *
 
+
 class Hermes:
-    def __init__(self):
-        self.user = User()
+    def __init__(self, username):
+        self.user = User(username)
         self.client = ClientHandler(self.user)
         self.player = Player()
 
@@ -38,7 +39,13 @@ class Hermes:
 
         # recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
 
-        return [Art_res, Alb_res, Tra_res]
+        Alb_res2 = set()
+
+        for album in Alb_res:
+            albuma = self.user.library_get('album', ['artist', 'art'], 'album', [], album[0], True)
+            Alb_res2.add(albuma)
+
+        return [Art_res, Alb_res2, Tra_res]
 
     def search_album(self, album):
         Art_res = set()
@@ -59,7 +66,13 @@ class Hermes:
 
         # recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
 
-        return [Art_res, Alb_res, Tra_res]
+        Alb_res2 = set()
+
+        for album in Alb_res:
+            albuma = self.user.library_get('album', ['artist', 'art'], 'album', [], album[0], True)
+            Alb_res2.add(albuma)
+
+        return [Art_res, Alb_res2, Tra_res]
 
     def search_artist(self, album):
         Art_res = set()
@@ -78,9 +91,15 @@ class Hermes:
                                              ['artist', 'album', 'tracknum'], word)
             Tra_res = self.intersect(Tra_res, all_rows)
 
+        Alb_res2 = set()
+
+        for album in Alb_res:
+            albuma = self.user.library_get('album', ['artist', 'art'], 'album', [], album[0], True)
+            Alb_res2.add(albuma)
+
         # recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
 
-        return [Art_res, Alb_res, Tra_res]
+        return [Art_res, Alb_res2, Tra_res]
 
     def sync(self):
         print "Syncing"
