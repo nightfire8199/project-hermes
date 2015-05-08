@@ -4,27 +4,45 @@ import os
 from os import path
 from PIL import Image
 import numpy as np
+from enum import Enum
+
+
+class CssTheme(Enum):
+    DARK = 0
+    LIGHT = 1
+    CUSTOM = 2
 
 
 class Theme(Shelver):
+
     def __init__(self, title, user):
         super(Theme, self).__init__(title, user)
-        self.buttonColor = []
-        self.buttonColor_id = 0
+        self.cssTheme_id = 0
+        self.cssTheme = CssTheme.DARK
+        self.customCssPath_id = 1
+        self.customCssPath = ''
+        self.buttonColor_id = 2
+        self.buttonColor = [255, 255, 255]
         self.load()
 
     def save(self):
         self.items = [
+            self.cssTheme,
+            self.customCssPath,
             self.buttonColor
         ]
         super(Theme, self).save()
 
     def load(self):
         super(Theme, self).load()
-        if len(self.items[0]) == 0:
+        print self.items
+        if len(self.items[self.buttonColor_id]) == 0:
+            self.cssTheme = CssTheme.DARK
             self.buttonColor = [255, 255, 255]
             return
 
+        self.cssTheme = self.items[self.cssTheme_id]
+        self.customCssPath = self.items[self.customCssPath_id]
         self.buttonColor = self.items[self.buttonColor_id]
 
     def get_buttonColor(self):
@@ -43,9 +61,9 @@ class Theme(Shelver):
         im = im.convert('RGBA')
         data = np.array(im)
 
-        r1, g1, b1 = data[:,:,0], data[:,:,1], data[:,:,2] # Original value
+        r1, g1, b1 = data[:, :, 0], data[:, :, 1], data[:, :, 2]  # Original value
 
-        red, green, blue = data[:,:,0], data[:,:,1], data[:,:,2]
+        red, green, blue = data[:, :, 0], data[:, :, 1], data[:, :, 2]
         mask = (red == r1) & (green == g1) & (blue == b1)
         data[:, :, :3][mask] = [red2, green2, blue2]
 
@@ -53,4 +71,5 @@ class Theme(Shelver):
 
         im = Image.fromarray(data)
         im.save(image)
+
 

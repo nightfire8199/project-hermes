@@ -14,6 +14,7 @@ from Hermes import *
 from SongItem import *
 from PrefsDialog import *
 from Interface import *
+from LoginDialog import *
 
 import urllib3.contrib.pyopenssl
 import requests
@@ -32,14 +33,23 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
-        #self.searchResults_Tra = TrackViewer(self.addToQueue)
-        if len(sys.argv) < 2:
-            print "Error: no username found"
-            print "Usage: python MainWindow.py <username>"
-            exit()
 
-        username = str(sys.argv[1])
-        self.hermes = Hermes(username)
+        self.username = ''
+
+        if len(sys.argv) < 2:
+            login = LoginDialog(self)
+
+            login.exec_()
+
+            if login.result() != 1:
+                print "Error: no username found"
+                print "Usage: python MainWindow.py <username>"
+                exit()
+
+        else:
+            self.username = str(sys.argv[1])
+
+        self.hermes = Hermes(self.username)
 
         self.searchResults_Tra.addT = self.addToQueue
 
@@ -80,10 +90,6 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
         for path in self.hermes.user.watched:
             self.prefDialog.watchedList.addItem(path)
-
-        with open('dark.css', 'r') as content_file:
-            appStyle = content_file.read()
-        self.setStyleSheet(appStyle)
 
         self.likeButton.hide()
 
@@ -374,6 +380,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
     def refreshUI(self):
         self.toNP.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))
         self.toLIB.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/search.png")))
+        self.toPLY.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/playlist.png")))
 
         if self.hermes.player.vlc.is_playing():
             self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
@@ -389,8 +396,6 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         red, green, blue = self.theme.get_buttonColor()
         #print "Changing text color to: ", red, green, blue
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
-
-        # self.prefDialog.ui.buttonColorLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
     def showNP(self):
         self.stack.setCurrentIndex(0)

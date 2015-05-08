@@ -15,6 +15,7 @@ import pickle
 
 class User:
     def __init__(self, username):
+        self.profile_name = username
         self.G_username = ""
         self.G_password = ""
         self.S_username = ""
@@ -25,7 +26,6 @@ class User:
         self.enc_key = "private_key"
 
         self.playlists = []
-
         self.watched = []
 
         # if len(sys.argv) >= 2:
@@ -40,11 +40,13 @@ class User:
         # else:
         #     self.authenticate(self.get_filename())
 
-        File = open(self.get_filename(username))
-        self.login(self.get_filename(username))
-
+        self.userdata_path = path.join('..', 'hermes-userdata', username)
+        print self.userdata_path
         if not path.exists(self.userdata_path):
             os.mkdir(self.userdata_path)
+
+        profilePath = path.join(self.userdata_path, self.profile_name)
+        self.login(profilePath)
 
         self.db_path = path.join(self.userdata_path, self.profile_name + '_db')
         self.db = sqlite3.connect(self.db_path)
@@ -53,7 +55,6 @@ class User:
         self.watched_file = path.join(self.userdata_path, self.profile_name + "_watched")
 
         if not path.exists(self.watched_file):
-            # print "no watched file"
             open(self.watched_file, 'w').close()
 
         if os.stat(self.watched_file).st_size > 0:
@@ -67,23 +68,19 @@ class User:
                 playlist = Playlist(filer, self)
                 self.playlists.append(playlist)
 
-    def get_filename(self, arg=None):  # Currently based off Arguments
-        if arg is None:
-            arg = raw_input('Choose a user profile filename: ')
-        self.profile_name = arg
-        self.userdata_path = path.join('..', 'hermes-userdata', arg)
-        if not path.exists(self.userdata_path):
-            os.mkdir(self.userdata_path)
+    def get_filename(username):
+        return path.join('..', 'hermes-userdata', username)
+    get_filename = staticmethod(get_filename)
 
-        return path.join(self.userdata_path, arg)
-
-    def encode(self, key, clear):
+    def encode(key, clear):
         enc = []
         for i in range(len(clear)):
             key_c = key[i % len(key)]
             enc_c = chr((ord(clear[i]) + ord(key_c)) % 256)
             enc.append(enc_c)
         return base64.urlsafe_b64encode("".join(enc))
+
+    encode = staticmethod(encode)
 
     def decode(self, key, enc):
         dec = []
