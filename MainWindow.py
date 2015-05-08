@@ -143,6 +143,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
         # self.searchResults_Tra.Rmenu = QtGui.QMenu(self)
         self.R_click_Tra()
+        self.R_click_NP()
 
     def R_click_Tra(self):
         self.searchResults_Tra.Rmenu = QtGui.QMenu(self.searchResults_Tra)
@@ -152,7 +153,21 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         playmenu = self.searchResults_Tra.Rmenu.addMenu('Add to Playlist')
         for playlist in self.hermes.user.playlists:
             playAdd = QtGui.QAction(playlist.title[9:], self)
-            playAdd.triggered.connect(functools.partial(self.playlistAdd, playlist.title))
+            playAdd.triggered.connect(functools.partial(self.playlistAddFromTra, playlist.title))
+            playmenu.addAction(playAdd)
+        newPlay = QtGui.QAction("Create New Playlist", self)
+        newPlay.triggered.connect(self.createPlaylist)
+        playmenu.addAction(newPlay)
+
+    def R_click_NP(self):
+        self.nowPlaying.Rmenu = QtGui.QMenu(self.nowPlaying)
+        # addQueue = QtGui.QAction('Add to Queue', self)
+        # addQueue.triggered.connect(self.addToQueue)
+        # self.searchResults_Tra.Rmenu.addAction(addQueue)
+        playmenu = self.nowPlaying.Rmenu.addMenu('Add to Playlist')
+        for playlist in self.hermes.user.playlists:
+            playAdd = QtGui.QAction(playlist.title[9:], self)
+            playAdd.triggered.connect(functools.partial(self.playlistAddFromQueue, playlist.title))
             playmenu.addAction(playAdd)
         newPlay = QtGui.QAction("Create New Playlist", self)
         newPlay.triggered.connect(self.createPlaylist)
@@ -169,6 +184,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
                 newItem.addChild(song)
             self.playlistView.addTopLevelItem(newItem)
         self.R_click_Tra()
+        self.R_click_NP()
 
     def quitApp(self):
         self.hermes.quit()
@@ -406,9 +422,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
     def showPLY(self):
         self.stack.setCurrentIndex(2)
 
-    def playlistAdd(self, title):
+    def playlistAddFromTra(self, title):
         track = self.searchResults_Tra.currentItem()
         self.hermes.playlist_add(title, track)
+        self.loadPlaylists()
+
+    def playlistAddFromQueue(self, title):
+        track = self.nowPlaying.currentItem()
+        self.hermes.playlist_add(title, track.searchRevert())
         self.loadPlaylists()
 
     def addFromsPlaylistToQueue(self, item, col):
@@ -417,6 +438,9 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         elif col == 0:
             for indx in range(0, item.childCount()):
                 self.addTrackToQueue(item.child(indx).Listver())
+
+    def removeFromQueue(self):
+        self.nowPlaying.takeItem(self.nowPlaying.currentRow)
 
 # Main script
 app = QtGui.QApplication(sys.argv)

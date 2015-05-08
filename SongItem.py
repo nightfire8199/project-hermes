@@ -40,6 +40,7 @@ class SearchSongItem(QtGui.QListWidgetItem):
 class SongItem(QtGui.QListWidgetItem):
     def __init__(self, other, parent=None):
         super(SongItem, self).__init__(parent)
+        self.artwork = other[5]
         self.id = other[0]
         self.artist = str(other[1].encode("utf-8"))
         self.album = str(other[2].encode("utf-8"))
@@ -60,6 +61,7 @@ class SongItem(QtGui.QListWidgetItem):
         newSong.artist = copy.artist
         newSong.album = copy.album
         newSong.title = copy.title
+        newSong.artwork = copy.art
         newSong.art = QtGui.QPixmap(QtCore.QString('assets/record.png'))
         if copy.art != '':
             data = urllib3.PoolManager().request("GET", copy.art)
@@ -69,6 +71,11 @@ class SongItem(QtGui.QListWidgetItem):
         newSong.location = copy.location
         newSong.setText(newSong.title + "\non: " + newSong.album + "\nby: " + newSong.artist)
         return newSong
+
+    def searchRevert(self):
+        result = SearchSongItem.copyCtor(self)
+        result.art = self.artwork
+        return result
 
 class ArtistItem(QtGui.QListWidgetItem):
     def __init__(self, other, parent=None):
