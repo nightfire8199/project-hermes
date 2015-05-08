@@ -611,7 +611,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="sizePolicy">
@@ -890,8 +890,17 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
               </property>
+              <property name="uniformRowHeights">
+               <bool>false</bool>
+              </property>
+              <property name="animated">
+               <bool>true</bool>
+              </property>
+              <property name="expandsOnDoubleClick">
+               <bool>false</bool>
+              </property>
               <property name="columnCount">
-               <number>1</number>
+               <number>2</number>
               </property>
               <attribute name="headerVisible">
                <bool>false</bool>
@@ -905,6 +914,11 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
               <column>
                <property name="text">
                 <string notr="true">1</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string notr="true">2</string>
                </property>
               </column>
              </widget>

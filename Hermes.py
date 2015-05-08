@@ -1,7 +1,7 @@
 from User import *
 from ClientHandler import *
 from Player import *
-from Library import *
+from Playlist import *
 
 
 class Hermes:

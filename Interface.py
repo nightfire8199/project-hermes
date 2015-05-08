@@ -2,7 +2,7 @@ from PyQt4 import QtGui, QtCore
 
 
 class TrackViewer(QtGui.QListWidget):
-    def __init__(self, add_method, parent=None):
+    def __init__(self, parent=None):
         super(QtGui.QListWidget, self).__init__(parent)
         self.addT = ''
         self.Rmenu = QtGui.QMenu(self)

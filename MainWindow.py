@@ -124,6 +124,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.toLIB.clicked.connect(self.showLIB)
         self.toPLY.clicked.connect(self.showPLY)
         self.playlistAction.triggered.connect(self.createPlaylist)
+        self.playlistView.itemDoubleClicked.connect(self.addFromsPlaylistToQueue)
 
     def addMenu(self):
         menubar = self.menuBar()
@@ -157,8 +158,8 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
             newItem = QtGui.QTreeWidgetItem()
             newItem.setText(0, QtCore.QString(playlist.title[9:]))
             for track in playlist.items:
-                song = QtGui.QTreeWidgetItem()
-                song.setText(0,QtCore.QString(track.text))
+                song = TreePlaylistItem.copyCtor(track)
+                song.setIcon(1, QtGui.QIcon(song.art))
                 newItem.addChild(song)
             self.playlistView.addTopLevelItem(newItem)
         self.R_click_Tra()
@@ -404,6 +405,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         track = self.searchResults_Tra.currentItem()
         self.hermes.playlist_add(title, track)
         self.loadPlaylists()
+
+    def addFromsPlaylistToQueue(self, item, col):
+        if col == 1:
+            self.addTrackToQueue(item.Listver())
+        elif col == 0:
+            for indx in range(0, item.childCount()):
+                self.addTrackToQueue(item.child(indx).Listver())
 
 # Main script
 app = QtGui.QApplication(sys.argv)
