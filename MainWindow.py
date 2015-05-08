@@ -186,6 +186,25 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchResults_Alb.clear()
         self.searchResults_Art.clear()
 
+        if len(albums) == 0:
+            self.label_3.hide()
+            self.searchResults_Alb.hide()
+        else:
+            self.label_3.show()
+            self.searchResults_Alb.show()
+
+        if len(artists) == 0:
+            self.label_4.hide()
+            self.searchResults_Art.hide()
+        else:
+            self.label_4.show()
+            self.searchResults_Art.show()
+
+        if len(tracks) == 0:
+            self.addButton.hide()
+        else:
+            self.addButton.show()
+
         for album in albums:
             newAlbum = AlbumItem(album)
             newAlbum.setIcon(QtGui.QIcon(newAlbum.art))
@@ -203,6 +222,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
             QtGui.QApplication.processEvents()
 
     def search(self):
+        self.stack.setCurrentIndex(1)
         searchText = self.searchBox.text()
         [artists, albums, tracks] = self.hermes.search(searchText)
         self.updateSearch(artists, albums, tracks)
