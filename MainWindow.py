@@ -82,6 +82,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.toNP.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.toLIB.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.toPLY.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.settingsButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+
+        self.streamButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.likeButton.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.clearQueueButton.setStyleSheet("background-color: rgba(0,0,0,0)")
 
         self.theme = Theme("theme", self.hermes.user)
         self.buttonColor = QColor()
@@ -119,13 +124,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchResults_Tra.itemDoubleClicked.connect(self.addToQueueAndPlay)
         self.nowPlaying.itemDoubleClicked.connect(self.playCurrent)
         self.syncAction.triggered.connect(self.sync)
-        self.addButton.clicked.connect(self.addToQueue)
         self.trackSlider.sliderReleased.connect(self.setTime)
         self.clearQueueButton.clicked.connect(self.clearQueue)
         self.streamButton.clicked.connect(self.getStream)
         self.likeButton.clicked.connect(self.like)
         self.getArt.connect(self.setAlbumArt)
         self.prefsAction.triggered.connect(self.launchPrefs)
+        self.settingsButton.clicked.connect(self.launchPrefs)
         self.toNP.clicked.connect(self.showNP)
         self.toLIB.clicked.connect(self.showLIB)
         self.toPLY.clicked.connect(self.showPLY)
@@ -149,14 +154,17 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.searchResults_Tra.Rmenu = QtGui.QMenu(self.searchResults_Tra)
         addQueue = QtGui.QAction('Add to Queue', self)
         addQueue.triggered.connect(self.addToQueue)
+        addQueue.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))
         self.searchResults_Tra.Rmenu.addAction(addQueue)
         playmenu = self.searchResults_Tra.Rmenu.addMenu('Add to Playlist')
         for playlist in self.hermes.user.playlists:
             playAdd = QtGui.QAction(playlist.title[9:], self)
             playAdd.triggered.connect(functools.partial(self.playlistAddFromTra, playlist.title))
+            playAdd.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoplaylist.png")))
             playmenu.addAction(playAdd)
         newPlay = QtGui.QAction("Create New Playlist", self)
         newPlay.triggered.connect(self.createPlaylist)
+        newPlay.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/playlist.png")))
         playmenu.addAction(newPlay)
 
     def R_click_NP(self):
@@ -168,9 +176,11 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         for playlist in self.hermes.user.playlists:
             playAdd = QtGui.QAction(playlist.title[9:], self)
             playAdd.triggered.connect(functools.partial(self.playlistAddFromQueue, playlist.title))
+            playAdd.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoplaylist.png")))
             playmenu.addAction(playAdd)
         newPlay = QtGui.QAction("Create New Playlist", self)
         newPlay.triggered.connect(self.createPlaylist)
+        newPlay.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/playlist.png")))
         playmenu.addAction(newPlay)
 
     def loadPlaylists(self):
@@ -397,6 +407,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.toNP.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/addtoqueue.png")))
         self.toLIB.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/search.png")))
         self.toPLY.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/playlist.png")))
+        self.settingsButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/settings.png")))
+
+        self.streamButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/soundcloud.png")))
+        self.likeButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/like_nofill.png")))
+        self.clearQueueButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/delete.png")))
+
+        self.R_click_Tra()
+        self.R_click_NP()
 
         if self.hermes.player.vlc.is_playing():
             self.playpauseButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/pause_nofill.png")))
