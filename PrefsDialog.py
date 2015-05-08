@@ -5,6 +5,7 @@ from PyQt4.QtGui import *
 
 form_class = uic.loadUiType("prefs.ui")[0]                 # Load the UI
 
+
 class PrefsDialog(QDialog, form_class):
     def __init__(self, theme, parent):
         QDialog.__init__(self, parent)

@@ -11,6 +11,7 @@ from PyQt4 import QtCore, QtGui, uic
 from Hermes import *
 from SongItem import *
 from PrefsDialog import *
+from LoginDialog import *
 
 import urllib3.contrib.pyopenssl
 import requests
@@ -30,13 +31,21 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
 
+        self.username = ''
         if len(sys.argv) < 2:
-            print "Error: no username found"
-            print "Usage: python MainWindow.py <username>"
-            exit()
+            login = LoginDialog(self)
 
-        username = str(sys.argv[1])
-        self.hermes = Hermes(username)
+            login.exec_()
+
+            if login.result() != 1:
+                print "Error: no username found"
+                print "Usage: python MainWindow.py <username>"
+                exit()
+
+        else:
+            self.username = str(sys.argv[1])
+
+        self.hermes = Hermes(self.username)
 
         self.initializeLayout()
         self.createActions()
