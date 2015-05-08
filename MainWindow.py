@@ -74,10 +74,6 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         for path in self.hermes.user.watched:
             self.prefDialog.watchedList.addItem(path)
 
-        with open('dark.css', 'r') as content_file:
-            appStyle = content_file.read()
-        self.setStyleSheet(appStyle)
-
         self.likeButton.hide()
 
         self.playpauseButton.setStyleSheet("background-color: rgba(0,0,0,0)")
@@ -330,8 +326,6 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         red, green, blue = self.theme.get_buttonColor()
         print "Changing text color to: ", red, green, blue
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
-
-        # self.prefDialog.ui.buttonColorLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
     def showNP(self):
         self.stack.setCurrentIndex(0)

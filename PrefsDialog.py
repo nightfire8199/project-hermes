@@ -12,18 +12,80 @@ class PrefsDialog(QDialog, form_class):
         self.theme = theme
         self.setupUi(self)
         self.setModal(True)
+        self.setFixedSize(self.width(), self.height())
+        self.connectActions()
+
+        if self.theme.cssTheme == CssTheme.DARK:
+            self.setThemeDark()
+            self.darkTheme.toggle()
+        elif self.theme.cssTheme == CssTheme.LIGHT:
+            self.setThemeLight()
+            self.lightTheme.toggle()
+        elif self.theme.cssTheme == CssTheme.CUSTOM:
+            self.setThemeCustom(True)
+            self.customTheme.toggle()
+
+        self.load()
+
+    def connectActions(self):
         self.buttonColorLabel.setText('')
         self.buttonColorButton.clicked.connect(self.buttonColorPicker)
         self.addPath.clicked.connect(self.addWatched)
         self.removePath.clicked.connect(self.removeWatched)
-        self.load()
+        self.darkTheme.clicked.connect(self.setThemeDark)
+        self.lightTheme.clicked.connect(self.setThemeLight)
+        self.customTheme.clicked.connect(self.setNewCustomTheme)
+
+    def setThemeDark(self):
+        print "Theme: dark"
+        self.theme.cssTheme = CssTheme.DARK
+        self.setTheme('dark.css')
+
+    def setThemeLight(self):
+        print "Theme: light"
+        self.theme.cssTheme = CssTheme.LIGHT
+        self.setTheme('light.css')
+
+    def setNewCustomTheme(self):
+        self.setThemeCustom(False)
+
+    def setThemeCustom(self, load_file):
+        print "Theme: custom"
+
+        old_theme = self.theme.cssTheme
+        self.theme.cssTheme = CssTheme.CUSTOM
+
+        if load_file and len(self.theme.customCssPath) > 0:
+            self.setTheme(self.theme.customCssPath)
+            return
+
+        dialog = QFileDialog(self, "Select a PyQt4 CSS File to Use", "./", "*.css")
+        dialog.exec_()
+
+        # dialog rejected
+        if dialog.result() != 1:
+            if old_theme == CssTheme.DARK:
+                self.darkTheme.toggle()
+            elif old_theme == CssTheme.LIGHT:
+                self.lightTheme.toggle()
+            return
+
+        print "Selected file:", str(dialog.selectedFiles()[0])
+        self.theme.customCssPath = str(dialog.selectedFiles()[0])
+        self.setTheme(self.theme.customCssPath)
+
+    def setTheme(self, themeName):
+        with open(themeName, 'r') as content_file:
+            appStyle = content_file.read()
+        self.parent.setStyleSheet(appStyle)
+        self.theme.save()
 
     def load(self):
         # self.theme.load() # done in ctor in Theme.py
         pass
 
     def addWatched(self):
-        dialog = QFileDialog(self, "Select a directory to watch", )
+        dialog = QFileDialog(self, "Select a Directory to Watch", "./", "*.css")
         dialog.setFileMode(QFileDialog.Directory)
         dialog.exec_()
 
@@ -52,16 +114,13 @@ class PrefsDialog(QDialog, form_class):
         self.exec_()
 
     def buttonColorPicker(self):
-        print "Launch color picker"
         colorDialog = QColorDialog(self)
         colorDialog.exec_()
 
-        if colorDialog.result() != 1: # dialog rejected
+        if colorDialog.result() != 1:  # dialog rejected
             return
 
         color = colorDialog.selectedColor()
         self.theme.changeButtonColor(color.red(), color.green(), color.blue())
         self.parent.refreshUI()
         self.refreshUI()
-
-
