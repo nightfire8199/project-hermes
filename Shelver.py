@@ -1,4 +1,4 @@
-__author__ = 'spitz'
+from PyQt4 import QtGui, QtCore
 
 import shelve
 from os import path

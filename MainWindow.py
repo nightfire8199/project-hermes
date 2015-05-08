@@ -4,6 +4,8 @@
 import sys
 import urllib3
 
+import functools
+
 import vlc
 
 from PyQt4 import QtCore, QtGui, uic
@@ -11,6 +13,7 @@ from PyQt4 import QtCore, QtGui, uic
 from Hermes import *
 from SongItem import *
 from PrefsDialog import *
+from Interface import *
 
 import urllib3.contrib.pyopenssl
 import requests
@@ -29,7 +32,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle('Project Hermes')
-
+        #self.searchResults_Tra = TrackViewer(self.addToQueue)
         if len(sys.argv) < 2:
             print "Error: no username found"
             print "Usage: python MainWindow.py <username>"
@@ -38,10 +41,13 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         username = str(sys.argv[1])
         self.hermes = Hermes(username)
 
+        self.searchResults_Tra.addT = self.addToQueue
+
         self.initializeLayout()
         self.createActions()
         self.connectActions()
         self.addMenu()
+        self.loadPlaylists()
 
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerEndReached, self.autoNext)
         self.hermes.player.events.event_attach(vlc.EventType.MediaPlayerTimeChanged, self.updateTracker)
@@ -65,6 +71,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
     def initializeLayout(self):
         self.toNP.setStyleSheet("background-color: rgba(0,0,0,0)")
         self.toLIB.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.toPLY.setStyleSheet("background-color: rgba(0,0,0,0)")
 
         self.theme = Theme("theme", self.hermes.user)
         self.buttonColor = QColor()
@@ -115,6 +122,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.prefsAction.triggered.connect(self.launchPrefs)
         self.toNP.clicked.connect(self.showNP)
         self.toLIB.clicked.connect(self.showLIB)
+        self.toPLY.clicked.connect(self.showPLY)
         self.playlistAction.triggered.connect(self.createPlaylist)
 
     def addMenu(self):
@@ -125,6 +133,35 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         toolMenu = menubar.addMenu('&Tools')
         toolMenu.addAction(self.syncAction)
         toolMenu.addAction(self.prefsAction)
+
+        # self.searchResults_Tra.Rmenu = QtGui.QMenu(self)
+        self.R_click_Tra()
+
+    def R_click_Tra(self):
+        self.searchResults_Tra.Rmenu = QtGui.QMenu(self.searchResults_Tra)
+        addQueue = QtGui.QAction('Add to Queue', self)
+        addQueue.triggered.connect(self.addToQueue)
+        self.searchResults_Tra.Rmenu.addAction(addQueue)
+        playmenu = self.searchResults_Tra.Rmenu.addMenu('Add to Playlist')
+        for playlist in self.hermes.user.playlists:
+            playAdd = QtGui.QAction(playlist.title[9:], self)
+            playAdd.triggered.connect(functools.partial(self.playlistAdd, playlist.title))
+            playmenu.addAction(playAdd)
+        newPlay = QtGui.QAction("Create New Playlist", self)
+        newPlay.triggered.connect(self.createPlaylist)
+        playmenu.addAction(newPlay)
+
+    def loadPlaylists(self):
+        self.playlistView.clear()
+        for playlist in self.hermes.user.playlists:
+            newItem = QtGui.QTreeWidgetItem()
+            newItem.setText(0, QtCore.QString(playlist.title[9:]))
+            for track in playlist.items:
+                song = QtGui.QTreeWidgetItem()
+                song.setText(0,QtCore.QString(track.text))
+                newItem.addChild(song)
+            self.playlistView.addTopLevelItem(newItem)
+        self.R_click_Tra()
 
     def quitApp(self):
         self.hermes.quit()
@@ -145,6 +182,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         title = 'playlist_'+str(dialog.textValue())
         playlist = Playlist(title, self.hermes.user)
         self.hermes.user.playlists.append(playlist)
+        self.loadPlaylists()
 
     def getStream(self):
         tracks = self.hermes.syncStream()
@@ -348,7 +386,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.prevButton.setIcon(QtGui.QIcon(QtCore.QString("assets/buttons/prev.png")))
 
         red, green, blue = self.theme.get_buttonColor()
-        print "Changing text color to: ", red, green, blue
+        #print "Changing text color to: ", red, green, blue
         self.playingLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
 
         # self.prefDialog.ui.buttonColorLabel.setStyleSheet("background-color: rgba(80,80,80,80); color: rgb("+str(red)+","+str(green)+","+str(blue)+")")
@@ -358,6 +396,14 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
 
     def showLIB(self):
         self.stack.setCurrentIndex(1)
+
+    def showPLY(self):
+        self.stack.setCurrentIndex(2)
+
+    def playlistAdd(self, title):
+        track = self.searchResults_Tra.currentItem()
+        self.hermes.playlist_add(title, track)
+        self.loadPlaylists()
 
 # Main script
 app = QtGui.QApplication(sys.argv)

@@ -1,6 +1,7 @@
 from User import *
 from ClientHandler import *
 from Player import *
+from Library import *
 
 
 class Hermes:
@@ -100,6 +101,12 @@ class Hermes:
         # recent_Art, recent_Alb, recent_Tra = Print_Results(Art_res, Alb_res, Tra_res)
 
         return [Art_res, Alb_res2, Tra_res]
+
+    def playlist_add(self, title, track):
+        for playlist in self.user.playlists:
+            if playlist.title == title:
+                newtrack = PlaylistItem.copySong(track)
+                playlist.add(newtrack)
 
     def sync(self):
         print "Syncing"
